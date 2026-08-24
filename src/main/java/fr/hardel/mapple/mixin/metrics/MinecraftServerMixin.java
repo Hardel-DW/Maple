@@ -1,4 +1,4 @@
-package fr.hardel.mapple.mixin;
+package fr.hardel.mapple.mixin.metrics;
 
 import fr.hardel.mapple.metrics.AutosaveTimer;
 import net.minecraft.server.MinecraftServer;

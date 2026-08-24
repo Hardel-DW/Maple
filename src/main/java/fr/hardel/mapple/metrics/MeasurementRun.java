@@ -38,7 +38,7 @@ public final class MeasurementRun implements MetricSink {
     }
 
     public static MeasurementRun open(MinecraftServer server, String name, int periodTicks, boolean record) {
-        Path directory = server.getServerDirectory().resolve("mapple-runs").resolve(name + "-" + Util.getFilenameFormattedDateTime());
+        Path directory = server.getServerDirectory().resolve("logs").resolve("mapple").resolve(name + "-" + Util.getFilenameFormattedDateTime());
         try {
             Files.createDirectories(directory);
             BufferedWriter writer = Files.newBufferedWriter(directory.resolve("metrics.csv"), StandardCharsets.UTF_8);

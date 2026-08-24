@@ -3,8 +3,10 @@
 	"package": "fr.hardel.mapple.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
-		"ChunkMapMixin",
-		"MinecraftServerMixin"
+		"metrics.ChunkMapMixin",
+		"metrics.MinecraftServerMixin",
+		"section.ChunkAccessMixin",
+		"section.ImposterProtoChunkMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

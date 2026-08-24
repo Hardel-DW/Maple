@@ -66,8 +66,10 @@ $durationTicks = [int]([regex]::Match($started, 'for (\d+) ticks').Groups[1].Val
 $null = Send-Rcon "mapple metrics run start $Name $PeriodTicks"
 Start-Sleep -Seconds ($durationTicks / 20 - 30)
 if ($HeapDump) { $null = Send-Rcon "mapple metrics heapdump" }
-$null = Send-Rcon "mapple metrics run stop"
+$closed = Send-Rcon "mapple metrics run stop"
+$runDirectory = Join-Path $project "run" | Join-Path -ChildPath ([regex]::Match($closed, 'Run closed at (.+)$').Groups[1].Value)
 Wait-Log "Simulation $Simulation stopped" 600
 $null = Send-Rcon "stop"
 if (-not $Attach) { $server.WaitForExit() } else { Wait-Log "All dimensions are saved" 300 }
+Copy-Item $log (Join-Path $runDirectory "server.log")
 Write-Host "Run $Name complete"

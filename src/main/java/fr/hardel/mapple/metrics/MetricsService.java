@@ -63,7 +63,7 @@ public final class MetricsService {
 
     public Path heapDump() {
         MeasurementRun current = this.run;
-        return HeapDump.write(current == null ? this.server.getServerDirectory().resolve("mapple-heapdumps") : current.directory());
+        return HeapDump.write(current == null ? this.server.getServerDirectory().resolve("logs").resolve("mapple") : current.directory());
     }
 
     private void tickRun() {

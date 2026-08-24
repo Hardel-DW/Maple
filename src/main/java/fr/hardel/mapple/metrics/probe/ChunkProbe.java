@@ -31,6 +31,7 @@ public final class ChunkProbe implements MetricProbe {
         long proto = 0L;
         long sections = 0L;
         long airSections = 0L;
+        long airSectionsSingleBiome = 0L;
         long blockEntities = 0L;
         for (ChunkHolder holder : level.getChunkSource().chunkMap.visibleChunkMap.values()) {
             holders++;
@@ -40,7 +41,10 @@ public final class ChunkProbe implements MetricProbe {
                 blockEntities += loaded.blockEntities.size();
                 for (LevelChunkSection section : loaded.getSections()) {
                     sections++;
-                    airSections += section.hasOnlyAir() ? 1L : 0L;
+                    if (section.hasOnlyAir()) {
+                        airSections++;
+                        airSectionsSingleBiome += section.getBiomes().bitsPerEntry() == 0 ? 1L : 0L;
+                    }
                 }
             } else if (chunk instanceof ProtoChunk) {
                 proto++;
@@ -52,6 +56,7 @@ public final class ChunkProbe implements MetricProbe {
         sink.put(scope, "chunk.proto", proto);
         sink.put(scope, "chunk.sections", sections);
         sink.put(scope, "chunk.airSections", airSections);
+        sink.put(scope, "chunk.airSectionsSingleBiome", airSectionsSingleBiome);
         sink.put(scope, "chunk.blockEntities", blockEntities);
     }
 }
