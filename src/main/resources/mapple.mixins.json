@@ -10,7 +10,8 @@
 		"section.LevelChunkMixin",
 		"section.LevelMixin",
 		"light.DataLayerStorageMapMixin",
-		"light.DataLayerStorageMapCopyMixin"
+		"light.DataLayerStorageMapCopyMixin",
+		"light.SkyLightSectionStorageMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
