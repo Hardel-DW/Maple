@@ -20,7 +20,10 @@
 		"light.SkyLightSectionStorageMixin",
 		"light.ChunkAccessMixin",
 		"light.ThreadedLevelLightEngineMixin",
-		"chunk.ChunkMapMixin"
+		"chunk.ChunkMapMixin",
+		"chunk.ChunkUnloadMixin",
+		"chunk.SectionStorageMixin",
+		"chunk.StructureCheckMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
