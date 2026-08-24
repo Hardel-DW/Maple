@@ -1,6 +1,6 @@
 package fr.hardel.mapple.mixin.light;
 
-import fr.hardel.mapple.optimisation.light.PersistentTopSections;
+import fr.hardel.mapple.optimisation.persistent.PersistentTopSections;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import net.minecraft.world.level.lighting.SkyLightSectionStorage;
 import org.spongepowered.asm.mixin.Mixin;

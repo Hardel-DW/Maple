@@ -1,7 +1,7 @@
 package fr.hardel.mapple.mixin.light;
 
 import fr.hardel.mapple.optimisation.light.LayerMapAccess;
-import fr.hardel.mapple.optimisation.light.PersistentLongMap;
+import fr.hardel.mapple.optimisation.persistent.PersistentLongMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.lighting.DataLayerStorageMap;

@@ -3,6 +3,7 @@ package fr.hardel.mapple.metrics.probe;
 import fr.hardel.mapple.metrics.MetricProbe;
 import fr.hardel.mapple.metrics.MetricSink;
 import fr.hardel.mapple.optimisation.light.LayerMapAccess;
+import fr.hardel.mapple.optimisation.persistent.PersistentLongMap;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.DataLayer;
@@ -35,7 +36,10 @@ public final class LightProbe implements MetricProbe {
 
         LayerLightSectionStorage<?> storage = engine.storage;
         LayerCensus census = new LayerCensus();
-        ((LayerMapAccess) storage.visibleSectionData).mapple$layers().forEach(census::accept);
+        for (PersistentLongMap.Entry<DataLayer> entry : ((LayerMapAccess) storage.visibleSectionData).mapple$layers()) {
+            census.accept(entry.value());
+        }
+
         sink.put(scope, prefix + ".compact", census.compact);
         sink.put(scope, prefix + ".materialized", census.materialized);
         sink.put(scope, prefix + ".uniform", census.uniform);

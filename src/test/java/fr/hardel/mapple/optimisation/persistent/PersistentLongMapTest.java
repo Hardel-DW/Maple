@@ -1,4 +1,4 @@
-package fr.hardel.mapple.optimisation.light;
+package fr.hardel.mapple.optimisation.persistent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -37,7 +37,11 @@ class PersistentLongMapTest {
         }
 
         Set<String> values = new HashSet<>();
-        map.forEach(values::add);
+        for (PersistentLongMap.Entry<String> entry : map) {
+            assertEquals(reference.get(entry.key()), entry.value());
+            values.add(entry.value());
+        }
+
         assertEquals(new HashSet<>(reference.values()), values);
     }
 
