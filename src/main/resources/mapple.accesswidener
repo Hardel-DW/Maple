@@ -1,0 +1,29 @@
+accessWidener v2 official
+
+accessible field net/minecraft/world/level/lighting/LevelLightEngine blockEngine Lnet/minecraft/world/level/lighting/LightEngine;
+accessible field net/minecraft/world/level/lighting/LevelLightEngine skyEngine Lnet/minecraft/world/level/lighting/LightEngine;
+accessible field net/minecraft/world/level/lighting/LightEngine storage Lnet/minecraft/world/level/lighting/LayerLightSectionStorage;
+accessible field net/minecraft/world/level/lighting/LayerLightSectionStorage visibleSectionData Lnet/minecraft/world/level/lighting/DataLayerStorageMap;
+accessible field net/minecraft/world/level/lighting/LayerLightSectionStorage sectionStates Lit/unimi/dsi/fastutil/longs/Long2ByteMap;
+accessible field net/minecraft/world/level/lighting/LayerLightSectionStorage queuedSections Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible field net/minecraft/world/level/lighting/DataLayerStorageMap map Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;
+accessible field net/minecraft/world/level/chunk/DataLayer data [B
+
+accessible field net/minecraft/server/level/ChunkMap visibleChunkMap Lit/unimi/dsi/fastutil/longs/Long2ObjectLinkedOpenHashMap;
+accessible field net/minecraft/server/level/ChunkMap chunkTypeCache Lit/unimi/dsi/fastutil/longs/Long2ByteMap;
+accessible field net/minecraft/server/level/ChunkMap nextChunkSaveTime Lit/unimi/dsi/fastutil/longs/Long2LongMap;
+accessible field net/minecraft/world/level/chunk/ChunkAccess blockEntities Ljava/util/Map;
+
+accessible field net/minecraft/world/level/StructureManager structureCheck Lnet/minecraft/world/level/levelgen/structure/StructureCheck;
+accessible field net/minecraft/world/level/levelgen/structure/StructureCheck loadedChunks Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible field net/minecraft/world/level/chunk/storage/SectionStorage storage Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible field net/minecraft/world/level/storage/SavedDataStorage cache Ljava/util/Map;
+
+accessible field net/minecraft/world/level/chunk/storage/SectionStorage simpleRegionStorage Lnet/minecraft/world/level/chunk/storage/SimpleRegionStorage;
+accessible field net/minecraft/world/level/chunk/storage/EntityStorage simpleRegionStorage Lnet/minecraft/world/level/chunk/storage/SimpleRegionStorage;
+accessible field net/minecraft/world/level/chunk/storage/SimpleRegionStorage worker Lnet/minecraft/world/level/chunk/storage/IOWorker;
+accessible field net/minecraft/world/level/chunk/storage/IOWorker pendingWrites Ljava/util/SequencedMap;
+accessible field net/minecraft/server/level/ServerLevel entityManager Lnet/minecraft/world/level/entity/PersistentEntitySectionManager;
+accessible field net/minecraft/world/level/entity/PersistentEntitySectionManager permanentStorage Lnet/minecraft/world/level/entity/EntityPersistentStorage;
+
+accessible method net/minecraft/server/level/ServerLevel getEntities ()Lnet/minecraft/world/level/entity/LevelEntityGetter;
