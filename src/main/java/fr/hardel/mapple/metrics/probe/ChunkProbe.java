@@ -6,7 +6,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
@@ -29,7 +28,6 @@ public final class ChunkProbe implements MetricProbe {
         String scope = MetricProbe.scopeOf(level);
         long holders = 0L;
         long full = 0L;
-        long imposter = 0L;
         long proto = 0L;
         long sections = 0L;
         long airSections = 0L;
@@ -44,8 +42,6 @@ public final class ChunkProbe implements MetricProbe {
                     sections++;
                     airSections += section.hasOnlyAir() ? 1L : 0L;
                 }
-            } else if (chunk instanceof ImposterProtoChunk) {
-                imposter++;
             } else if (chunk instanceof ProtoChunk) {
                 proto++;
             }
@@ -53,7 +49,6 @@ public final class ChunkProbe implements MetricProbe {
 
         sink.put(scope, "chunk.holders", holders);
         sink.put(scope, "chunk.full", full);
-        sink.put(scope, "chunk.imposter", imposter);
         sink.put(scope, "chunk.proto", proto);
         sink.put(scope, "chunk.sections", sections);
         sink.put(scope, "chunk.airSections", airSections);

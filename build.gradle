@@ -22,6 +22,12 @@ dependencies {
 
 loom {
 	accessWidenerPath = file("src/main/resources/mapple.accesswidener")
+
+	runs {
+		server {
+			vmArgs "-Xmx6G", "-Xms6G", "-XX:+UseZGC", "-Xlog:gc*:file=logs/gc.log"
+		}
+	}
 }
 
 test {
