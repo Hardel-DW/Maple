@@ -6,7 +6,6 @@ accessible field net/minecraft/world/level/lighting/LightEngine storage Lnet/min
 accessible field net/minecraft/world/level/lighting/LayerLightSectionStorage visibleSectionData Lnet/minecraft/world/level/lighting/DataLayerStorageMap;
 accessible field net/minecraft/world/level/lighting/LayerLightSectionStorage sectionStates Lit/unimi/dsi/fastutil/longs/Long2ByteMap;
 accessible field net/minecraft/world/level/lighting/LayerLightSectionStorage queuedSections Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
-accessible field net/minecraft/world/level/lighting/DataLayerStorageMap map Lit/unimi/dsi/fastutil/longs/Long2ObjectOpenHashMap;
 accessible field net/minecraft/world/level/chunk/DataLayer data [B
 
 accessible field net/minecraft/server/level/ChunkMap visibleChunkMap Lit/unimi/dsi/fastutil/longs/Long2ObjectLinkedOpenHashMap;

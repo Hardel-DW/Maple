@@ -4,6 +4,7 @@ param(
     [int] $PeriodTicks = 100,
     [switch] $HeapDump,
     [switch] $Attach,
+    [switch] $Record,
     [string[]] $Commands = @()
 )
 
@@ -64,7 +65,7 @@ if (-not $Attach) {
 
 $started = Send-Rcon "overstress simulation start $Simulation"
 $durationTicks = [int]([regex]::Match($started, 'for (\d+) ticks').Groups[1].Value)
-$null = Send-Rcon "mapple metrics run start $Name $PeriodTicks"
+$null = Send-Rcon "mapple metrics run start $Name $PeriodTicks $($Record.IsPresent.ToString().ToLower())"
 Start-Sleep -Seconds 60
 foreach ($command in $Commands) { $null = Send-Rcon $command }
 Start-Sleep -Seconds ($durationTicks / 20 - 90)

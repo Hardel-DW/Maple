@@ -5,6 +5,7 @@ import fr.hardel.mapple.metrics.MetricSink;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -32,6 +33,7 @@ public final class ChunkProbe implements MetricProbe {
         long sections = 0L;
         long airSections = 0L;
         long airSectionsSingleBiome = 0L;
+        long[] sectionsByPaletteBits = new long[5];
         long blockEntities = 0L;
         for (ChunkHolder holder : level.getChunkSource().chunkMap.visibleChunkMap.values()) {
             holders++;
@@ -44,6 +46,8 @@ public final class ChunkProbe implements MetricProbe {
                     if (section.hasOnlyAir()) {
                         airSections++;
                         airSectionsSingleBiome += section.getBiomes().bitsPerEntry() == 0 ? 1L : 0L;
+                    } else {
+                        sectionsByPaletteBits[Math.min(4, Mth.ceillog2(paletteSize(section)))]++;
                     }
                 }
             } else if (chunk instanceof ProtoChunk) {
@@ -58,5 +62,14 @@ public final class ChunkProbe implements MetricProbe {
         sink.put(scope, "chunk.airSections", airSections);
         sink.put(scope, "chunk.airSectionsSingleBiome", airSectionsSingleBiome);
         sink.put(scope, "chunk.blockEntities", blockEntities);
+        for (int bits = 0; bits < sectionsByPaletteBits.length; bits++) {
+            sink.put(scope, "chunk.sectionsPaletteBits." + bits, sectionsByPaletteBits[bits]);
+        }
+    }
+
+    private static int paletteSize(LevelChunkSection section) {
+        int[] size = new int[1];
+        section.getStates().forEachInPalette(state -> size[0]++);
+        return size[0];
     }
 }

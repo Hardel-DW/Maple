@@ -8,7 +8,9 @@
 		"section.ChunkAccessMixin",
 		"section.ImposterProtoChunkMixin",
 		"section.LevelChunkMixin",
-		"section.LevelMixin"
+		"section.LevelMixin",
+		"light.DataLayerStorageMapMixin",
+		"light.DataLayerStorageMapCopyMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

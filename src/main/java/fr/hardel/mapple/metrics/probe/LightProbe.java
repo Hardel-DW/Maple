@@ -2,6 +2,7 @@ package fr.hardel.mapple.metrics.probe;
 
 import fr.hardel.mapple.metrics.MetricProbe;
 import fr.hardel.mapple.metrics.MetricSink;
+import fr.hardel.mapple.optimisation.light.LayerMapAccess;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.DataLayer;
@@ -33,34 +34,40 @@ public final class LightProbe implements MetricProbe {
         }
 
         LayerLightSectionStorage<?> storage = engine.storage;
-        long compact = 0L;
-        long materialized = 0L;
-        long uniform = 0L;
-        for (DataLayer layer : storage.visibleSectionData.map.values()) {
-            byte[] data = layer.data;
-            if (data == null) {
-                compact++;
-            } else {
-                materialized++;
-                uniform += isUniform(data) ? 1L : 0L;
-            }
-        }
-
-        sink.put(scope, prefix + ".compact", compact);
-        sink.put(scope, prefix + ".materialized", materialized);
-        sink.put(scope, prefix + ".uniform", uniform);
+        LayerCensus census = new LayerCensus();
+        ((LayerMapAccess) storage.visibleSectionData).mapple$layers().forEach(census::accept);
+        sink.put(scope, prefix + ".compact", census.compact);
+        sink.put(scope, prefix + ".materialized", census.materialized);
+        sink.put(scope, prefix + ".uniform", census.uniform);
         sink.put(scope, prefix + ".queuedSections", storage.queuedSections.size());
         sink.put(scope, prefix + ".sectionStates", storage.sectionStates.size());
     }
 
-    private static boolean isUniform(byte[] data) {
-        byte first = data[0];
-        for (byte value : data) {
-            if (value != first) {
-                return false;
+    private static final class LayerCensus {
+        private long compact;
+        private long materialized;
+        private long uniform;
+
+        private void accept(DataLayer layer) {
+            byte[] data = layer.data;
+            if (data == null) {
+                this.compact++;
+                return;
             }
+
+            this.materialized++;
+            this.uniform += isUniform(data) ? 1L : 0L;
         }
 
-        return true;
+        private static boolean isUniform(byte[] data) {
+            byte first = data[0];
+            for (byte value : data) {
+                if (value != first) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }
