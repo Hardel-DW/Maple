@@ -18,6 +18,12 @@
 		"mapple.mixins.json"
 	],
 	"accessWidener": "mapple.accesswidener",
+	"custom": {
+		"lithium:options": {
+			"mixin.util.section_data_storage": false,
+			"mixin.chunk.palette": false
+		}
+	},
 	"depends": {
 		"fabricloader": ">=0.19.3",
 		"fabric-api": "*",
