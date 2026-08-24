@@ -3,7 +3,8 @@ param(
     [string] $Simulation = "overstress:idle",
     [int] $PeriodTicks = 100,
     [switch] $HeapDump,
-    [switch] $Attach
+    [switch] $Attach,
+    [string[]] $Commands = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -64,7 +65,9 @@ if (-not $Attach) {
 $started = Send-Rcon "overstress simulation start $Simulation"
 $durationTicks = [int]([regex]::Match($started, 'for (\d+) ticks').Groups[1].Value)
 $null = Send-Rcon "mapple metrics run start $Name $PeriodTicks"
-Start-Sleep -Seconds ($durationTicks / 20 - 30)
+Start-Sleep -Seconds 60
+foreach ($command in $Commands) { $null = Send-Rcon $command }
+Start-Sleep -Seconds ($durationTicks / 20 - 90)
 if ($HeapDump) { $null = Send-Rcon "mapple metrics heapdump" }
 $closed = Send-Rcon "mapple metrics run stop"
 $runDirectory = Join-Path $project "run" | Join-Path -ChildPath ([regex]::Match($closed, 'Run closed at (.+)$').Groups[1].Value)

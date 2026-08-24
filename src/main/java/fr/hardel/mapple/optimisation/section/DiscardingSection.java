@@ -8,12 +8,11 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.chunk.Strategy;
 
-public final class DiscardingSection extends LevelChunkSection {
+public final class DiscardingSection extends SharedSection {
     public static final DiscardingSection INSTANCE = new DiscardingSection();
 
     private DiscardingSection() {
@@ -23,14 +22,6 @@ public final class DiscardingSection extends LevelChunkSection {
     @Override
     public BlockState setBlockState(int sectionX, int sectionY, int sectionZ, BlockState state, boolean checkThreading) {
         return Blocks.AIR.defaultBlockState();
-    }
-
-    @Override
-    public void acquire() {
-    }
-
-    @Override
-    public void release() {
     }
 
     @Override

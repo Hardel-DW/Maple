@@ -1,6 +1,7 @@
 package fr.hardel.mapple.mixin.section;
 
 import fr.hardel.mapple.optimisation.section.DiscardingSection;
+import fr.hardel.mapple.optimisation.section.SharedAirSection;
 import java.util.Arrays;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
@@ -24,5 +25,10 @@ public abstract class ChunkAccessMixin {
         } else {
             replaceMissingSections(containerFactory, sections);
         }
+    }
+
+    @Redirect(method = "fillBiomesFromNoise", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getSection(I)Lnet/minecraft/world/level/chunk/LevelChunkSection;"))
+    private LevelChunkSection mapple$writableSection(ChunkAccess chunk, int index) {
+        return SharedAirSection.writable(chunk.getSections(), index);
     }
 }

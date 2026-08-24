@@ -6,7 +6,9 @@
 		"metrics.ChunkMapMixin",
 		"metrics.MinecraftServerMixin",
 		"section.ChunkAccessMixin",
-		"section.ImposterProtoChunkMixin"
+		"section.ImposterProtoChunkMixin",
+		"section.LevelChunkMixin",
+		"section.LevelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
