@@ -6,7 +6,6 @@
 		"metrics.ChunkMapMixin",
 		"metrics.MinecraftServerMixin",
 		"section.ChunkAccessMixin",
-		"section.ImposterProtoChunkMixin",
 		"section.LevelChunkMixin",
 		"section.LevelMixin",
 		"section.PalettedContainerMixin",
@@ -22,8 +21,7 @@
 		"light.ThreadedLevelLightEngineMixin",
 		"chunk.ChunkMapMixin",
 		"chunk.ChunkUnloadMixin",
-		"chunk.SectionStorageMixin",
-		"chunk.StructureCheckMixin",
+		"chunk.PoiManagerMixin",
 		"pathfinding.PathFinderMixin",
 		"pathfinding.NodeEvaluatorMixin",
 		"pathfinding.WalkNodeEvaluatorMixin"

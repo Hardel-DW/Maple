@@ -21,7 +21,8 @@
 	"custom": {
 		"lithium:options": {
 			"mixin.util.section_data_storage": false,
-			"mixin.chunk.palette": false
+			"mixin.chunk.palette": false,
+			"mixin.chunk.no_locking": false
 		}
 	},
 	"depends": {

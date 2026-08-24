@@ -7,8 +7,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 public final class Mapple implements ModInitializer {
-    public static final String MOD_ID = "mapple";
-
     @Override
     public void onInitialize() {
         MetricsCommand.register();

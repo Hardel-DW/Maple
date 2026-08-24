@@ -8,6 +8,7 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.chunk.PalettedContainerRO;
 import net.minecraft.world.level.chunk.Strategy;
@@ -36,6 +37,11 @@ public final class DiscardingSection extends SharedSection {
 
     @Override
     public void fillBiomesFromNoise(BiomeResolver biomeResolver, Climate.Sampler sampler, int quartMinX, int quartMinY, int quartMinZ) {
+        throw unreachable();
+    }
+
+    @Override
+    public LevelChunkSection copy() {
         throw unreachable();
     }
 

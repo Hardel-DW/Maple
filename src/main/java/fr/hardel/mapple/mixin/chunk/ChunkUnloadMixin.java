@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,10 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ChunkUnloadMixin {
     @Shadow
     @Final
-    private ServerLevel level;
-
-    @Shadow
-    @Final
     private PoiManager poiManager;
 
     @Shadow
@@ -32,6 +27,5 @@ public abstract class ChunkUnloadMixin {
     private void mapple$purgeIndexes(ChunkHolder holder, CompletableFuture<?> saveSyncFuture, long chunkKey, CallbackInfo callback) {
         this.chunkTypeCache.remove(chunkKey);
         ((ChunkIndex) this.poiManager).mapple$unloadChunk(chunkKey);
-        ((ChunkIndex) this.level.structureManager().structureCheck).mapple$unloadChunk(chunkKey);
     }
 }

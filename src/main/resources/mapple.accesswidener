@@ -16,6 +16,10 @@ accessible field net/minecraft/world/level/chunk/ChunkAccess blockEntities Ljava
 accessible field net/minecraft/world/level/StructureManager structureCheck Lnet/minecraft/world/level/levelgen/structure/StructureCheck;
 accessible field net/minecraft/world/level/levelgen/structure/StructureCheck loadedChunks Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage storage Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible field net/minecraft/world/level/chunk/storage/SectionStorage loadedChunks Lit/unimi/dsi/fastutil/longs/LongSet;
+accessible field net/minecraft/world/level/chunk/storage/SectionStorage pendingLoads Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible field net/minecraft/world/level/chunk/storage/SectionStorage loadLock Ljava/lang/Object;
+accessible field net/minecraft/world/level/chunk/storage/SectionStorage levelHeightAccessor Lnet/minecraft/world/level/LevelHeightAccessor;
 accessible field net/minecraft/world/level/storage/SavedDataStorage cache Ljava/util/Map;
 
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage simpleRegionStorage Lnet/minecraft/world/level/chunk/storage/SimpleRegionStorage;

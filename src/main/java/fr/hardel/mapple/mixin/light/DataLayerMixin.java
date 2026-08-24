@@ -1,7 +1,5 @@
 package fr.hardel.mapple.mixin.light;
 
-import fr.hardel.mapple.optimisation.light.PackedDataLayer;
-import java.util.Arrays;
 import net.minecraft.world.level.chunk.DataLayer;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(DataLayer.class)
-public abstract class DataLayerMixin implements PackedDataLayer {
+public abstract class DataLayerMixin {
     @Shadow
     protected byte @Nullable [] data;
 
@@ -40,16 +38,5 @@ public abstract class DataLayerMixin implements PackedDataLayer {
         if (this.data == null && (value & 15) == this.defaultValue) {
             callback.cancel();
         }
-    }
-
-    @Override
-    public byte[] mapple$packedData() {
-        if (this.data != null) {
-            return this.data;
-        }
-
-        byte[] packed = new byte[DataLayer.SIZE];
-        Arrays.fill(packed, (byte) (this.defaultValue | this.defaultValue << 4));
-        return packed;
     }
 }
