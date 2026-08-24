@@ -23,7 +23,10 @@
 		"chunk.ChunkMapMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.SectionStorageMixin",
-		"chunk.StructureCheckMixin"
+		"chunk.StructureCheckMixin",
+		"pathfinding.PathFinderMixin",
+		"pathfinding.NodeEvaluatorMixin",
+		"pathfinding.WalkNodeEvaluatorMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
