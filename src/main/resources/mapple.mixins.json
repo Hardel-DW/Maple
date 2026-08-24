@@ -7,6 +7,8 @@
 		"section.LevelChunkMixin",
 		"section.LevelMixin",
 		"section.PalettedContainerMixin",
+		"section.PalettedContainerDataMixin",
+		"section.BlockStateStrategyMixin",
 		"light.DataLayerMixin",
 		"light.DataLayerStorageMapMixin",
 		"light.DataLayerStorageMapCopyMixin",
