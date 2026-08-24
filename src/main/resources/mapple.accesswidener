@@ -26,3 +26,5 @@ accessible field net/minecraft/server/level/ServerLevel entityManager Lnet/minec
 accessible field net/minecraft/world/level/entity/PersistentEntitySectionManager permanentStorage Lnet/minecraft/world/level/entity/EntityPersistentStorage;
 
 accessible method net/minecraft/server/level/ServerLevel getEntities ()Lnet/minecraft/world/level/entity/LevelEntityGetter;
+
+accessible class net/minecraft/server/level/ServerChunkCache$MainThreadExecutor

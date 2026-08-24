@@ -68,7 +68,7 @@ $durationTicks = [int]([regex]::Match($started, 'for (\d+) ticks').Groups[1].Val
 $null = Send-Rcon "mapple metrics run start $Name $PeriodTicks $($Record.IsPresent.ToString().ToLower())"
 Start-Sleep -Seconds 60
 foreach ($command in $Commands) { $null = Send-Rcon $command }
-Start-Sleep -Seconds ($durationTicks / 20 - 90)
+Start-Sleep -Seconds ([Math]::Max(0, $durationTicks / 20 - 90))
 if ($HeapDump) { $null = Send-Rcon "mapple metrics heapdump" }
 $closed = Send-Rcon "mapple metrics run stop"
 $runDirectory = Join-Path $project "run" | Join-Path -ChildPath ([regex]::Match($closed, 'Run closed at (.+)$').Groups[1].Value)

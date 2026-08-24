@@ -11,7 +11,13 @@
 		"section.LevelMixin",
 		"light.DataLayerStorageMapMixin",
 		"light.DataLayerStorageMapCopyMixin",
-		"light.SkyLightSectionStorageMixin"
+		"light.LayerLightSectionStorageMixin",
+		"light.ServerChunkCacheMixin",
+		"light.ChunkHolderMixin",
+		"light.SerializableChunkDataMixin",
+		"light.SkyLightSectionStorageMixin",
+		"light.ChunkAccessMixin",
+		"light.ThreadedLevelLightEngineMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
