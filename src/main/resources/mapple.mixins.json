@@ -10,6 +10,7 @@
 		"section.LevelChunkMixin",
 		"section.LevelMixin",
 		"section.PalettedContainerMixin",
+		"light.DataLayerMixin",
 		"light.DataLayerStorageMapMixin",
 		"light.DataLayerStorageMapCopyMixin",
 		"light.LayerLightSectionStorageMixin",
