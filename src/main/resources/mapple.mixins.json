@@ -21,6 +21,7 @@
 		"light.ChunkAccessMixin",
 		"light.ThreadedLevelLightEngineMixin",
 		"chunk.ChunkMapMixin",
+		"chunk.ChunkSaveMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.SectionStorageMixin",
 		"chunk.StructureCheckMixin",
