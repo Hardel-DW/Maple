@@ -9,6 +9,7 @@
 		"section.ImposterProtoChunkMixin",
 		"section.LevelChunkMixin",
 		"section.LevelMixin",
+		"section.PalettedContainerMixin",
 		"light.DataLayerStorageMapMixin",
 		"light.DataLayerStorageMapCopyMixin",
 		"light.LayerLightSectionStorageMixin",
