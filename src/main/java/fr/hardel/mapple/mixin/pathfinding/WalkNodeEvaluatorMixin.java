@@ -37,6 +37,8 @@ public abstract class WalkNodeEvaluatorMixin {
     @Inject(method = "prepare", at = @At("HEAD"))
     private void mapple$attachCaches(PathNavigationRegion level, Mob entity, CallbackInfo callback) {
         PathfindingScratch scratch = PathfindingScratch.current();
+        scratch.pathTypes.clear();
+        scratch.collisions.clear();
         this.pathTypesByPosCacheByMob = scratch.pathTypes;
         this.collisionCache = scratch.collisions;
     }

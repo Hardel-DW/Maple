@@ -5,12 +5,12 @@ import fr.hardel.mapple.optimisation.light.SparseLayer;
 import net.minecraft.world.level.chunk.DataLayer;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(DataLayer.class)
 public abstract class DataLayerMixin implements SparseDataLayer {
@@ -36,21 +36,16 @@ public abstract class DataLayerMixin implements SparseDataLayer {
         this.mapple$slabs = 0;
     }
 
-    /**
-     * @author mapple
-     * @reason absent slabs hold the default value
-     */
-    @Overwrite
-    private int get(int index) {
-        return this.data == null ? this.defaultValue : SparseLayer.get(this.data, this.mapple$slabs, this.defaultValue, index);
+    // Absent slabs hold the default value.
+    @Inject(method = "get(I)I", at = @At("HEAD"), cancellable = true)
+    private void mapple$sparseGet(int index, CallbackInfoReturnable<Integer> callback) {
+        callback.setReturnValue(this.data == null ? this.defaultValue : SparseLayer.get(this.data, this.mapple$slabs, this.defaultValue, index));
     }
 
-    /**
-     * @author mapple
-     * @reason a slab is only allocated by the first value that differs from the default
-     */
-    @Overwrite
-    private void set(int index, int value) {
+    // A slab is only allocated by the first value that differs from the default.
+    @Inject(method = "set(II)V", at = @At("HEAD"), cancellable = true)
+    private void mapple$sparseSet(int index, int value, CallbackInfo callback) {
+        callback.cancel();
         value &= 15;
         int slab = index >> 8;
         if ((this.mapple$slabs & 1 << slab) == 0) {
@@ -65,27 +60,20 @@ public abstract class DataLayerMixin implements SparseDataLayer {
         SparseLayer.set(this.data, this.mapple$slabs, index, value);
     }
 
-    /**
-     * @author mapple
-     * @reason callers only read the full array, so it is expanded on demand instead of stored
-     */
-    @Overwrite
-    public byte[] getData() {
-        return SparseLayer.expand(this.data, this.mapple$slabs, this.defaultValue);
+    // Callers only read the full array, so it is expanded on demand instead of stored.
+    @Inject(method = "getData", at = @At("HEAD"), cancellable = true)
+    private void mapple$expandOnDemand(CallbackInfoReturnable<byte[]> callback) {
+        callback.setReturnValue(SparseLayer.expand(this.data, this.mapple$slabs, this.defaultValue));
     }
 
-    /**
-     * @author mapple
-     * @reason the copy keeps the compact form
-     */
-    @Overwrite
-    public DataLayer copy() {
+    @Inject(method = "copy", at = @At("HEAD"), cancellable = true)
+    private void mapple$compactCopy(CallbackInfoReturnable<DataLayer> callback) {
         DataLayer copy = new DataLayer(this.defaultValue);
         if (this.data != null) {
             ((SparseDataLayer) copy).mapple$adopt(this.data.clone(), this.mapple$slabs);
         }
 
-        return copy;
+        callback.setReturnValue(copy);
     }
 
     @Override
