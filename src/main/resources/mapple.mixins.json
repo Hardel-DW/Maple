@@ -20,6 +20,7 @@
 		"light.ChunkAccessMixin",
 		"light.ThreadedLevelLightEngineMixin",
 		"chunk.ChunkMapMixin",
+		"chunk.NoiseChunkReleaseMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.PoiManagerMixin",
 		"pathfinding.PathFinderMixin",

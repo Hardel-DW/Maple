@@ -6,3 +6,4 @@ accessible field net/minecraft/world/level/chunk/storage/SectionStorage pendingL
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage loadLock Ljava/lang/Object;
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage levelHeightAccessor Lnet/minecraft/world/level/LevelHeightAccessor;
 accessible class net/minecraft/server/level/ServerChunkCache$MainThreadExecutor
+accessible field net/minecraft/world/level/chunk/ChunkAccess noiseChunk Lnet/minecraft/world/level/levelgen/NoiseChunk;
