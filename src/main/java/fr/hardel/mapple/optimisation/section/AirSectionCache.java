@@ -16,13 +16,26 @@ public final class AirSectionCache {
         this.factory = factory;
     }
 
+    /** What a fresh vanilla section holds: air, and the default biome. Every slot of a proto chunk starts there. */
+    public SharedAirSection empty() {
+        return shared(this.factory.defaultBiome());
+    }
+
     public void compact(LevelChunkSection[] sections) {
         for (int index = 0; index < sections.length; index++) {
-            LevelChunkSection section = sections[index];
-            if (section.hasOnlyAir() && section.getBiomes().bitsPerEntry() == 0 && !(section instanceof SharedAirSection)) {
-                sections[index] = this.sections.computeIfAbsent(section.getNoiseBiome(0, 0, 0), this::create);
-            }
+            compact(sections, index);
         }
+    }
+
+    public void compact(LevelChunkSection[] sections, int index) {
+        LevelChunkSection section = sections[index];
+        if (section.hasOnlyAir() && section.getBiomes().bitsPerEntry() == 0 && !(section instanceof SharedAirSection)) {
+            sections[index] = shared(section.getNoiseBiome(0, 0, 0));
+        }
+    }
+
+    public SharedAirSection shared(Holder<Biome> biome) {
+        return this.sections.computeIfAbsent(biome, this::create);
     }
 
     private SharedAirSection create(Holder<Biome> biome) {
