@@ -5,7 +5,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.chunk.PalettedContainerFactory;
 
 public final class AirSectionCache {
@@ -39,6 +38,6 @@ public final class AirSectionCache {
     }
 
     private SharedAirSection create(Holder<Biome> biome) {
-        return new SharedAirSection(this.factory.createForBlockStates(), new PalettedContainer<>(biome, this.factory.biomeStrategy()));
+        return new SharedAirSection(this.factory, biome);
     }
 }

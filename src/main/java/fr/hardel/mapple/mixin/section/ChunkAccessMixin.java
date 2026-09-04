@@ -23,7 +23,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** An imposter never reads its own sections, a proto chunk of a level starts with its shared empty one, and uniform air goes back to the shared section of its biome. */
@@ -74,19 +73,6 @@ public abstract class ChunkAccessMixin implements AirSectionCompaction {
             imposter.getWrapped().collectBiomesInPalette(output);
             callback.cancel();
         }
-    }
-
-    @Redirect(
-        method = "fillBiomesFromNoise",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/ChunkAccess;getSection(I)Lnet/minecraft/world/level/chunk/LevelChunkSection;")
-    )
-    private LevelChunkSection mapple$writableSection(ChunkAccess chunk, int index) {
-        return SharedAirSection.writable(chunk.getSections(), index);
-    }
-
-    @Inject(method = "fillBiomesFromNoise", at = @At("RETURN"))
-    private void mapple$compactFilledSections(CallbackInfo callback) {
-        mapple$compactAirSections();
     }
 
     /** A chunk built outside a level, a mod's template or preview, has no shared sections to go back to. */

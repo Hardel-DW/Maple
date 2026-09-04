@@ -10,7 +10,7 @@
 		"section.PalettedContainerDataMixin",
 		"section.BlockStateStrategyMixin",
 		"section.ProtoChunkMixin",
-		"section.NoiseBasedChunkGeneratorMixin",
+		"section.ChunkStatusTasksMixin",
 		"section.BulkSectionAccessMixin",
 		"light.DataLayerMixin",
 		"light.DataLayerStorageMapMixin",

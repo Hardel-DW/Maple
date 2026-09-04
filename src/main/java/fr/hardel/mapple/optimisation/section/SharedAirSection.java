@@ -8,10 +8,16 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.PalettedContainerFactory;
 
 public final class SharedAirSection extends SharedSection {
-    SharedAirSection(PalettedContainer<BlockState> states, PalettedContainer<Holder<Biome>> biomes) {
-        super(states, biomes);
+    private final PalettedContainerFactory factory;
+    private final Holder<Biome> biome;
+
+    SharedAirSection(PalettedContainerFactory factory, Holder<Biome> biome) {
+        super(factory.createForBlockStates(), new PalettedContainer<>(biome, factory.biomeStrategy()));
+        this.factory = factory;
+        this.biome = biome;
     }
 
     public static LevelChunkSection writable(LevelChunkSection[] sections, int index) {
@@ -22,6 +28,12 @@ public final class SharedAirSection extends SharedSection {
         }
 
         return section;
+    }
+
+    /** Built new: vanilla's copy keeps the single value palettes, and FastNoise writes into those in place. */
+    @Override
+    public LevelChunkSection copy() {
+        return new LevelChunkSection(factory.createForBlockStates(), new PalettedContainer<>(biome, factory.biomeStrategy()));
     }
 
     @Override
