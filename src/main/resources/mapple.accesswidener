@@ -5,7 +5,6 @@ accessible field net/minecraft/world/level/chunk/storage/SectionStorage loadedCh
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage pendingLoads Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage loadLock Ljava/lang/Object;
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage levelHeightAccessor Lnet/minecraft/world/level/LevelHeightAccessor;
-accessible class net/minecraft/server/level/ServerChunkCache$MainThreadExecutor
 accessible field net/minecraft/world/level/chunk/ChunkAccess noiseChunk Lnet/minecraft/world/level/levelgen/NoiseChunk;
 accessible field net/minecraft/server/level/GenerationChunkHolder generationRefCount Ljava/util/concurrent/atomic/AtomicInteger;
 accessible field net/minecraft/server/level/GenerationChunkHolder highestAllowedStatus Lnet/minecraft/world/level/chunk/status/ChunkStatus;
