@@ -4,7 +4,7 @@ license = "All-Rights-Reserved"
 modId = "mapple"
 version = "${version}"
 displayName = "Mapple"
-iconFile = "assets/mapple/icon.png"
+logoFile = "assets/mapple/icon.png"
 authors = "Hardel"
 description = '''
 Memory optimisation for the dedicated server.
