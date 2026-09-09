@@ -1,0 +1,28 @@
+modLoader = "lowcodefml"
+loaderVersion = "*"
+license = "All-Rights-Reserved"
+
+[[mods]]
+modId = "mapple"
+version = "${version}"
+displayName = "Mapple"
+iconFile = "assets/mapple/icon.png"
+authors = "Hardel"
+description = '''
+Memory optimisation for the dedicated server.
+'''
+
+[[dependencies.mapple]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_range}"
+ordering = "NONE"
+side = "SERVER"
+
+[[mixins]]
+config = "mapple.mixins.json"
+
+["lithium:options"]
+"mixin.util.section_data_storage" = false
+"mixin.chunk.palette" = false
+"mixin.chunk.no_locking" = false
