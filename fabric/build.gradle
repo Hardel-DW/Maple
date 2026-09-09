@@ -1,0 +1,48 @@
+plugins {
+	id 'net.fabricmc.fabric-loom'
+}
+
+base {
+	archivesName = "Mapple-fabric-${minecraftMajor}"
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+}
+
+loom {
+	accessWidenerPath = project(':common').file('src/main/resources/mapple.accesswidener')
+
+	runs {
+		server {
+			vmArgs "-Xmx6G", "-Xms6G", "-XX:+UseZGC", "-Xlog:gc*:file=logs/gc.log"
+		}
+	}
+}
+
+tasks.named('compileJava') {
+	source(project(':common').sourceSets.main.allJava)
+}
+
+tasks.named('sourcesJar') {
+	from(project(':common').sourceSets.main.allSource)
+}
+
+processResources {
+	from(project(':common').sourceSets.main.resources)
+	inputs.property 'version', project.version
+
+	filesMatching('fabric.mod.json') {
+		expand version: project.version
+	}
+}
+
+publishing {
+	publications {
+		create('mavenJava', MavenPublication) {
+			artifactId = "mapple-fabric-${minecraftMajor}"
+			from components.java
+		}
+	}
+}
