@@ -8,10 +8,7 @@ import fr.hardel.mapple.optimisation.section.AirSectionCompaction;
 import fr.hardel.mapple.optimisation.section.DiscardingSection;
 import fr.hardel.mapple.optimisation.section.SharedAirSection;
 import java.util.Arrays;
-import java.util.Set;
-import net.minecraft.core.Holder;
 import net.minecraft.world.level.LevelHeightAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -22,8 +19,6 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** An imposter never reads its own sections, a proto chunk of a level starts with its shared empty one, and uniform air goes back to the shared section of its biome. */
 @Mixin(ChunkAccess.class)
@@ -64,14 +59,6 @@ public abstract class ChunkAccessMixin implements AirSectionCompaction {
             if (sections[index] == null) {
                 sections[index] = empty;
             }
-        }
-    }
-
-    @Inject(method = "collectBiomesInPalette", at = @At("HEAD"), cancellable = true)
-    private void mapple$collectWrappedBiomes(Set<Holder<Biome>> output, CallbackInfo callback) {
-        if ((Object) this instanceof ImposterProtoChunk imposter) {
-            imposter.getWrapped().collectBiomesInPalette(output);
-            callback.cancel();
         }
     }
 
