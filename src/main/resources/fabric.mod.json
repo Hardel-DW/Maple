@@ -8,6 +8,7 @@
 		"Hardel"
 	],
 	"license": "All-Rights-Reserved",
+	"icon": "assets/mapple/icon.png",
 	"environment": "server",
 	"mixins": [
 		"mapple.mixins.json"
