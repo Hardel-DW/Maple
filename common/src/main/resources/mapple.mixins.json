@@ -14,7 +14,6 @@
 		"section.BulkSectionAccessMixin",
 		"light.SerializableChunkDataMixin",
 		"light.ChunkAccessMixin",
-		"chunk.NoiseChunkReleaseMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.PoiManagerMixin",
 		"cold.LevelMixin",
