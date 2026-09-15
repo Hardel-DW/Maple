@@ -15,7 +15,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
@@ -26,10 +25,9 @@ import net.minecraft.world.level.chunk.Strategy;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.jpountz.lz4.LZ4Compressor;
 import net.jpountz.lz4.LZ4Factory;
-import org.jspecify.annotations.Nullable;
 
 /**
- * A proto chunk at rest keeps its sections and carving mask as one LZ4 block.
+ * A proto chunk at rest keeps its sections as one LZ4 block.
  * A shared air section is stored as its biome, an owned section in the disk layout of its palettes with registry ids.
  */
 public final class ColdStorage {
@@ -53,7 +51,7 @@ public final class ColdStorage {
 
         ChunkStatus status = proto.getPersistedStatus();
         ChunkStatus allowed = holder.highestAllowedStatus;
-        if (status.isOrAfter(ChunkStatus.NOISE) && (allowed == null || !allowed.isAfter(status))) {
+        if (status.isOrAfter(ChunkStatus.TERRAIN) && (allowed == null || !allowed.isAfter(status))) {
             ((ColdChunk) proto).mapple$freeze();
         }
     }
@@ -62,7 +60,7 @@ public final class ColdStorage {
         return new ColdSection(owner, index, this.empty);
     }
 
-    public byte[] freeze(LevelChunkSection[] sections, @Nullable CarvingMask mask) {
+    public byte[] freeze(LevelChunkSection[] sections) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         IdMap<Holder<Biome>> biomes = this.factory.biomeStrategy().globalMap();
         for (LevelChunkSection section : sections) {
@@ -75,16 +73,11 @@ public final class ColdStorage {
             }
         }
 
-        buffer.writeBoolean(mask != null);
-        if (mask != null) {
-            buffer.writeLongArray(mask.toArray());
-        }
-
         return compress(buffer);
     }
 
-    /** Fills the slots of the chunk in place and returns its carving mask. */
-    public @Nullable CarvingMask thaw(byte[] cold, LevelChunkSection[] sections, int minY) {
+    /** Fills the slots of the chunk in place. */
+    public void thaw(byte[] cold, LevelChunkSection[] sections) {
         FriendlyByteBuf buffer = decompress(cold);
         IdMap<Holder<Biome>> biomes = this.factory.biomeStrategy().globalMap();
         for (int index = 0; index < sections.length; index++) {
@@ -95,8 +88,6 @@ public final class ColdStorage {
                 sections[index] = new LevelChunkSection(states, read(buffer, this.factory.biomeStrategy()));
             }
         }
-
-        return buffer.readBoolean() ? new CarvingMask(buffer.readLongArray(), minY) : null;
     }
 
     private static <T> void write(FriendlyByteBuf buffer, PalettedContainerRO<T> container, Strategy<T> strategy) {
