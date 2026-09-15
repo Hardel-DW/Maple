@@ -4,24 +4,15 @@ import fr.hardel.mapple.optimisation.cold.ColdChunk;
 import fr.hardel.mapple.optimisation.cold.ColdStorage;
 import fr.hardel.mapple.optimisation.cold.ColdStorageHolder;
 import fr.hardel.mapple.optimisation.section.SharedAirSection;
-import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /** The cold state of a proto chunk: one block of bytes, sentinels in the slots, and the chunk monitor around every change of state. */
 @Mixin(ProtoChunk.class)
 public abstract class ProtoChunkMixin implements ColdChunk {
-    @Shadow
-    private CarvingMask carvingMask;
-
     @Unique
     private volatile byte[] mapple$cold;
 
@@ -33,12 +24,11 @@ public abstract class ProtoChunkMixin implements ColdChunk {
             }
 
             ColdStorage storage = mapple$storage();
-            byte[] cold = storage.freeze(self().sections, this.carvingMask);
+            byte[] cold = storage.freeze(self().sections);
             for (int index = 0; index < self().sections.length; index++) {
                 self().sections[index] = storage.sentinel(this, index);
             }
 
-            this.carvingMask = null;
             this.mapple$cold = cold;
         }
     }
@@ -51,7 +41,7 @@ public abstract class ProtoChunkMixin implements ColdChunk {
                 return;
             }
 
-            this.carvingMask = mapple$storage().thaw(cold, self().sections, self().getMinY());
+            mapple$storage().thaw(cold, self().sections);
             this.mapple$cold = null;
         }
     }
@@ -70,16 +60,6 @@ public abstract class ProtoChunkMixin implements ColdChunk {
             mapple$thaw();
             return SharedAirSection.writable(self().sections, index);
         }
-    }
-
-    @Inject(method = {"getCarvingMask", "getOrCreateCarvingMask"}, at = @At("HEAD"))
-    private void mapple$thawBeforeReadingTheMask(CallbackInfoReturnable<CarvingMask> callback) {
-        mapple$thaw();
-    }
-
-    @Inject(method = "setCarvingMask", at = @At("HEAD"))
-    private void mapple$thawBeforeWritingTheMask(CarvingMask mask, CallbackInfo callback) {
-        mapple$thaw();
     }
 
     @Unique

@@ -5,7 +5,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeResolver;
-import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
@@ -117,8 +116,8 @@ final class ColdSection extends LevelChunkSection {
     }
 
     @Override
-    public void fillBiomesFromNoise(BiomeResolver biomeResolver, Climate.Sampler sampler, int quartMinX, int quartMinY, int quartMinZ) {
-        writable().fillBiomesFromNoise(biomeResolver, sampler, quartMinX, quartMinY, quartMinZ);
+    public void fillBiomesFromNoise(BiomeResolver biomeResolver, int quartMinX, int quartMinY, int quartMinZ) {
+        writable().fillBiomesFromNoise(biomeResolver, quartMinX, quartMinY, quartMinZ);
     }
 
     @Override

@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 /** The steps that fill sections get writable ones before, and give the uniform air back after. Above the generator, so a mod that replaces the fill is covered too. */
 @Mixin(ChunkStatusTasks.class)
 public abstract class ChunkStatusTasksMixin {
-    @Inject(method = {"generateBiomes", "generateNoise", "generateSurface"}, at = @At("HEAD"), require = 3)
+    @Inject(method = {"generateBiomes", "buildTerrain"}, at = @At("HEAD"), require = 2)
     private static void mapple$writableSections(WorldGenContext context, ChunkStep step, StaticCache2D<GenerationChunkHolder> chunks, ChunkAccess chunk,
         CallbackInfoReturnable<CompletableFuture<ChunkAccess>> callback) {
         LevelChunkSection[] sections = chunk.getSections();
@@ -28,7 +28,7 @@ public abstract class ChunkStatusTasksMixin {
         }
     }
 
-    @Inject(method = {"generateBiomes", "generateNoise", "generateSurface"}, at = @At("RETURN"), cancellable = true, require = 3)
+    @Inject(method = {"generateBiomes", "buildTerrain"}, at = @At("RETURN"), cancellable = true, require = 2)
     private static void mapple$compactAfterTheStep(WorldGenContext context, ChunkStep step, StaticCache2D<GenerationChunkHolder> chunks, ChunkAccess chunk,
         CallbackInfoReturnable<CompletableFuture<ChunkAccess>> callback) {
         callback.setReturnValue(callback.getReturnValue().thenApply(ChunkStatusTasksMixin::mapple$compacted));
