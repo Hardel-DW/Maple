@@ -17,8 +17,9 @@ import net.minecraft.world.level.material.FluidState;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The blocks of one section as local ids with a count per id, starting from what it holds. At the end the section takes one container built by the
- * vanilla constructor, with the palette in the order vanilla's writes would give, and its counters from the counts instead of a recount.
+ * The blocks of one section as local ids with a count per id, starting from what it holds: the local ids are those of its palette, so new states follow
+ * in the order vanilla's writes would add them. At the end a changed section takes one container built by the vanilla constructor, and its counters
+ * from the counts instead of a recount.
  */
 final class SectionBuilder {
     private final LevelChunkSection section;
@@ -26,6 +27,8 @@ final class SectionBuilder {
     private final List<BlockState> entries = new ArrayList<>();
     private final short[] ids;
     private int[] counts = new int[4];
+    private byte[] kinds = new byte[4];
+    private boolean changed;
     private @Nullable BlockState lastState;
     private int lastId;
 
@@ -34,36 +37,74 @@ final class SectionBuilder {
         PalettedContainer<BlockState> states = section.getStates();
         this.strategy = states.strategy;
         this.ids = new short[this.strategy.entryCount()];
-        if (states.bitsPerEntry() == 0) {
-            this.entries.add(states.get(0, 0, 0));
+        PalettedContainer.Data<BlockState> data = states.data;
+        if (data.configuration() instanceof Configuration.Global) {
+            decodeGlobal(data);
+            return;
+        }
+
+        Palette<BlockState> palette = data.palette();
+        for (int id = 0; id < palette.getSize(); id++) {
+            add(palette.valueFor(id));
+        }
+
+        if (data.storage() instanceof ZeroBitStorage) {
             this.counts[0] = this.ids.length;
             return;
         }
 
-        for (int y = 0; y < 16; y++) {
-            for (int z = 0; z < 16; z++) {
-                for (int x = 0; x < 16; x++) {
-                    int id = localId(states.get(x, y, z));
-                    this.ids[this.strategy.getIndex(x, y, z)] = (short) id;
-                    this.counts[id]++;
-                }
-            }
+        int[] raw = new int[this.ids.length];
+        data.storage().unpack(raw);
+        for (int index = 0; index < raw.length; index++) {
+            this.ids[index] = (short) raw[index];
+            this.counts[raw[index]]++;
         }
     }
 
-    void set(int x, int y, int z, BlockState state) {
+    BlockState get(int x, int y, int z) {
+        return this.entries.get(this.ids[this.strategy.getIndex(x, y, z)]);
+    }
+
+    byte kind(int x, int y, int z) {
+        return this.kinds[this.ids[this.strategy.getIndex(x, y, z)]];
+    }
+
+    /** Tells whether the block changed. */
+    boolean set(int x, int y, int z, BlockState state) {
         int index = this.strategy.getIndex(x, y, z);
         int id = localId(state);
-        this.counts[this.ids[index]]--;
+        int old = this.ids[index];
+        if (old == id) {
+            return false;
+        }
+
+        this.counts[old]--;
         this.counts[id]++;
         this.ids[index] = (short) id;
+        this.changed = true;
+        return true;
     }
 
     void build() {
+        if (!this.changed) {
+            return;
+        }
+
         Configuration configuration = this.strategy.getConfigurationForPaletteSize(this.entries.size());
         Palette<BlockState> palette = configuration.createPalette(this.strategy, this.entries);
         this.section.states = new PalettedContainer<>(this.strategy, configuration, storage(configuration, palette), palette);
         countBlocks();
+    }
+
+    /** A global palette holds registry ids: each distinct state gets a local id in the order it first appears. */
+    private void decodeGlobal(PalettedContainer.Data<BlockState> data) {
+        int[] raw = new int[this.ids.length];
+        data.storage().unpack(raw);
+        for (int index = 0; index < raw.length; index++) {
+            int id = localId(data.palette().valueFor(raw[index]));
+            this.ids[index] = (short) id;
+            this.counts[id]++;
+        }
     }
 
     /** Vanilla's recalcBlockCounts, over the counts of the palette. */
@@ -137,11 +178,18 @@ final class SectionBuilder {
             return id;
         }
 
+        return add(state);
+    }
+
+    private int add(BlockState state) {
+        int id = this.entries.size();
         this.entries.add(state);
-        if (this.entries.size() > this.counts.length) {
-            this.counts = Arrays.copyOf(this.counts, this.counts.length * 2);
+        if (id == this.counts.length) {
+            this.counts = Arrays.copyOf(this.counts, id * 2);
+            this.kinds = Arrays.copyOf(this.kinds, id * 2);
         }
 
-        return this.entries.size() - 1;
+        this.kinds[id] = BlockKind.of(state);
+        return id;
     }
 }
