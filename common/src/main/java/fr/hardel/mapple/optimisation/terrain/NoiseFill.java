@@ -1,6 +1,7 @@
 package fr.hardel.mapple.optimisation.terrain;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -48,12 +49,15 @@ public final class NoiseFill {
         this.sections.build();
     }
 
+    /** The builder is looked up again only when the column enters another section. */
     private void fillColumn(ScopedDensityBuffer density, DensityVolume volume, int x, int z) {
         Aquifer aquifer = this.noiseChunk.aquifer();
         int blockX = volume.blockX(x);
         int blockZ = volume.blockZ(z);
         boolean oceanFloorSettled = false;
         boolean worldSurfaceSettled = false;
+        SectionBuilder builder = null;
+        int builderSection = Integer.MIN_VALUE;
         for (int y = volume.sizeY() - 1; y >= 0; y--) {
             int blockY = volume.blockY(y);
             BlockState computed = aquifer.computeSubstance(blockX, blockY, blockZ, density.get(volume.indexUnchecked(x, y, z)));
@@ -62,10 +66,16 @@ public final class NoiseFill {
                 continue;
             }
 
-            this.sections.set(x, blockY, z, state);
+            if (SectionPos.blockToSectionCoord(blockY) != builderSection) {
+                builderSection = SectionPos.blockToSectionCoord(blockY);
+                builder = this.sections.at(blockY);
+            }
+
+            int index = builder.index(x, SectionPos.sectionRelative(blockY), z);
+            builder.set(index, state);
             oceanFloorSettled = oceanFloorSettled || settle(this.oceanFloor, Heightmap.Types.OCEAN_FLOOR_WG, x, blockY, z, state);
             worldSurfaceSettled = worldSurfaceSettled || settle(this.worldSurface, Heightmap.Types.WORLD_SURFACE_WG, x, blockY, z, state);
-            if (aquifer.shouldScheduleFluidUpdate() && !state.getFluidState().isEmpty()) {
+            if (builder.kind(index) == BlockKind.FLUID && aquifer.shouldScheduleFluidUpdate()) {
                 this.chunk.markPosForPostProcessing(this.fluidPos.set(blockX, blockY, blockZ));
             }
         }
