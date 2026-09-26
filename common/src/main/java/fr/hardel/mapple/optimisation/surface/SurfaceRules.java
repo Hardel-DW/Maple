@@ -5,7 +5,7 @@ import net.minecraft.world.level.levelgen.material.rule.RuleEvaluator;
 import org.jspecify.annotations.Nullable;
 
 /** The compiled rules of one chunk. Each column first sets the ranges of its veins, then resolves the guards reading the column. */
-final class SurfaceRules {
+final class SurfaceRules implements AutoCloseable {
     private final RuleEvaluator root;
     private final Guard[] columnGuards;
     private final OreVein[] veins;
@@ -29,5 +29,12 @@ final class SurfaceRules {
 
     @Nullable BlockState tryApply(int blockX, int blockY, int blockZ) {
         return this.root.tryApply(blockX, blockY, blockZ);
+    }
+
+    @Override
+    public void close() {
+        for (OreVein vein : this.veins) {
+            vein.close();
+        }
     }
 }

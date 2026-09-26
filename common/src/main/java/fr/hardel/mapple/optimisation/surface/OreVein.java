@@ -4,10 +4,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
-import net.minecraft.world.level.levelgen.densityfunction.DensityBuffer;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySamplerSet;
 import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
+import net.minecraft.world.level.levelgen.densityfunction.ScopedDensityBuffer;
 import net.minecraft.world.level.levelgen.material.MaterialRuleContext;
 import net.minecraft.world.level.levelgen.material.rule.OreVeinRule;
 import net.minecraft.world.level.levelgen.material.rule.RuleEvaluator;
@@ -18,10 +18,10 @@ import org.jspecify.annotations.Nullable;
  * y it is positive at, the range the vein can fire in. Outside the volume vanilla samples the density directly: a column holding stone out of the
  * volume opens its range on that side.
  */
-final class OreVein implements RuleEvaluator {
+final class OreVein implements RuleEvaluator, AutoCloseable {
     private final OreVeinRule rule;
     private final DensityVolume volume;
-    private final DensityBuffer density;
+    private final ScopedDensityBuffer density;
     private final DensitySampler.Bound densitySampler;
     private final DensitySampler.Bound richnessSampler;
     private final DensitySampler.Bound fillerGapSampler;
@@ -29,7 +29,7 @@ final class OreVein implements RuleEvaluator {
     private final int[] lowest;
     private final int[] highest;
     private final boolean openBelow;
-    private @Nullable DensityBuffer richness;
+    private @Nullable ScopedDensityBuffer richness;
     private int low;
     private int high;
 
@@ -40,8 +40,7 @@ final class OreVein implements RuleEvaluator {
         this.richnessSampler = samplers.get(rule.richness());
         this.fillerGapSampler = samplers.get(rule.fillerGap());
         this.randomFactory = context.getOrCreateRandomFactory(Identifier.withDefaultNamespace("ore"));
-        this.density = DensityBuffer.createUnpooled(volume.size());
-        this.densitySampler.sampleVolume(this.density, volume);
+        this.density = this.densitySampler.sampleVolume(volume);
         this.lowest = new int[volume.sizeX() * volume.sizeZ()];
         this.highest = new int[this.lowest.length];
         this.openBelow = minY < volume.minBlockY();
@@ -89,11 +88,19 @@ final class OreVein implements RuleEvaluator {
         }
 
         if (this.richness == null) {
-            this.richness = DensityBuffer.createUnpooled(this.volume.size());
-            this.richnessSampler.sampleVolume(this.richness, this.volume);
+            this.richness = this.richnessSampler.sampleVolume(this.volume);
         }
 
         return this.richness.get(index);
+    }
+
+    /** The buffers go back to the pool of the noise chunk, as vanilla's own do. */
+    @Override
+    public void close() {
+        this.density.close();
+        if (this.richness != null) {
+            this.richness.close();
+        }
     }
 
     private void scan() {
