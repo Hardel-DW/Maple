@@ -1,33 +1,26 @@
 package fr.hardel.mapple.mixin.section;
 
-import fr.hardel.mapple.optimisation.section.AirSectionCache;
-import fr.hardel.mapple.optimisation.section.AirSectionCacheHolder;
+import fr.hardel.mapple.optimisation.section.SharedSectionData;
+import fr.hardel.mapple.optimisation.section.SharedSectionDataHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.PalettedContainerFactory;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Level.class)
-public abstract class LevelMixin implements AirSectionCacheHolder {
-    @Shadow
-    @Final
-    private PalettedContainerFactory palettedContainerFactory;
-
+public abstract class LevelMixin implements SharedSectionDataHolder {
     @Unique
-    private AirSectionCache mapple$airSections;
+    private SharedSectionData mapple$sharedSectionData;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void mapple$createAirSections(CallbackInfo callback) {
-        this.mapple$airSections = new AirSectionCache(this.palettedContainerFactory);
+    private void mapple$createSharedSectionData(CallbackInfo callback) {
+        this.mapple$sharedSectionData = new SharedSectionData(((Level) (Object) this).palettedContainerFactory());
     }
 
     @Override
-    public AirSectionCache mapple$airSections() {
-        return this.mapple$airSections;
+    public SharedSectionData mapple$sharedSectionData() {
+        return this.mapple$sharedSectionData;
     }
 }

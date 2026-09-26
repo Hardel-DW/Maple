@@ -19,8 +19,3 @@ side = "SERVER"
 
 [[mixins]]
 config = "mapple.mixins.json"
-
-["lithium:options"]
-"mixin.util.section_data_storage" = false
-"mixin.chunk.palette" = false
-"mixin.chunk.no_locking" = false

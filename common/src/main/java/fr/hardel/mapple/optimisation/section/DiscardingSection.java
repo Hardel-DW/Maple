@@ -1,22 +1,15 @@
 package fr.hardel.mapple.optimisation.section;
 
-import net.minecraft.core.Holder;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeResolver;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.chunk.PalettedContainer;
-import net.minecraft.world.level.chunk.PalettedContainerRO;
-import net.minecraft.world.level.chunk.Strategy;
+import net.minecraft.world.level.chunk.PalettedContainerFactory;
 
-public final class DiscardingSection extends SharedSection {
-    public static final DiscardingSection INSTANCE = new DiscardingSection();
-
-    private DiscardingSection() {
-        super(new PalettedContainer<>(Blocks.AIR.defaultBlockState(), Strategy.createForBlockStates(Block.BLOCK_STATE_REGISTRY)), null);
+/** The slot of an imposter: it reads as a fresh section, air and the default biome, and drops every write, as vanilla drops the imposter's own sections. */
+public final class DiscardingSection extends LevelChunkSection {
+    DiscardingSection(PalettedContainerFactory factory) {
+        super(factory);
     }
 
     @Override
@@ -25,36 +18,6 @@ public final class DiscardingSection extends SharedSection {
     }
 
     @Override
-    public PalettedContainerRO<Holder<Biome>> getBiomes() {
-        throw unreachable();
-    }
-
-    @Override
-    public Holder<Biome> getNoiseBiome(int quartX, int quartY, int quartZ) {
-        throw unreachable();
-    }
-
-    @Override
     public void fillBiomesFromNoise(BiomeResolver biomeResolver, int quartMinX, int quartMinY, int quartMinZ) {
-        throw unreachable();
-    }
-
-    @Override
-    public LevelChunkSection copy() {
-        throw unreachable();
-    }
-
-    @Override
-    public void write(FriendlyByteBuf buffer) {
-        throw unreachable();
-    }
-
-    @Override
-    public int getSerializedSize() {
-        throw unreachable();
-    }
-
-    private static UnsupportedOperationException unreachable() {
-        return new UnsupportedOperationException("An imposter section delegates everything to the wrapped chunk");
     }
 }
