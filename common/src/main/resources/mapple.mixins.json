@@ -11,6 +11,8 @@
 		"chunk.PoiManagerMixin",
 		"terrain.MaterialSystemMixin",
 		"terrain.NoiseBasedChunkGeneratorMixin",
+		"feature.ChunkAccessMixin",
+		"feature.OreFeatureMixin",
 		"pathfinding.PathFinderMixin",
 		"pathfinding.NodeEvaluatorMixin",
 		"pathfinding.WalkNodeEvaluatorMixin"
