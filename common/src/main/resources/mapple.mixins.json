@@ -9,6 +9,7 @@
 		"section.PalettedContainerMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.PoiManagerMixin",
+		"terrain.MaterialSystemMixin",
 		"terrain.NoiseBasedChunkGeneratorMixin",
 		"pathfinding.PathFinderMixin",
 		"pathfinding.NodeEvaluatorMixin",
