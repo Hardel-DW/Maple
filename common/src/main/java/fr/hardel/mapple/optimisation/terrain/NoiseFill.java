@@ -5,7 +5,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseChunk;
@@ -26,6 +25,7 @@ public final class NoiseFill {
     private final Heightmap oceanFloor;
     private final Heightmap worldSurface;
     private final SectionBuilder[] builders;
+    private final int minSectionY;
     private final BlockPos.MutableBlockPos fluidPos = new BlockPos.MutableBlockPos();
 
     public NoiseFill(ChunkAccess chunk, NoiseChunk noiseChunk, BlockState defaultBlock) {
@@ -35,6 +35,7 @@ public final class NoiseFill {
         this.oceanFloor = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
         this.worldSurface = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
         this.builders = new SectionBuilder[chunk.getSectionsCount()];
+        this.minSectionY = chunk.getMinSectionY();
     }
 
     public void run(DensitySampler.Bound finalDensity) {
@@ -47,10 +48,9 @@ public final class NoiseFill {
             }
         }
 
-        LevelChunkSection[] sections = this.chunk.getSections();
-        for (int index = 0; index < this.builders.length; index++) {
-            if (this.builders[index] != null) {
-                sections[index] = this.builders[index].build();
+        for (SectionBuilder builder : this.builders) {
+            if (builder != null) {
+                builder.build();
             }
         }
     }
@@ -78,8 +78,9 @@ public final class NoiseFill {
         }
     }
 
+    /** The section index from the minimum read once: the chunk's own lookup walks its height accessor on every block. */
     private SectionBuilder builder(int blockY) {
-        int index = this.chunk.getSectionIndex(blockY);
+        int index = SectionPos.blockToSectionCoord(blockY) - this.minSectionY;
         SectionBuilder builder = this.builders[index];
         if (builder == null) {
             builder = new SectionBuilder(this.chunk.getSection(index));
