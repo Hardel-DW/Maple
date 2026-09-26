@@ -1,4 +1,4 @@
-package fr.hardel.mapple.optimisation.terrain;
+package fr.hardel.mapple.optimisation.surface;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -20,12 +20,11 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
 import net.minecraft.world.level.levelgen.material.MaterialRuleContext;
 import net.minecraft.world.level.levelgen.material.MaterialSystem;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
-import net.minecraft.world.level.levelgen.material.rule.RuleEvaluator;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Vanilla's surface pass with its loop as is, every rule compiled and run by its own code: only the column, which reads and writes the proto chunk
- * directly, and the biome lookup, zoomed per chunk, change.
+ * Vanilla's surface pass with its loop as is. The column reads and writes the proto chunk directly, the biome lookup is zoomed per chunk and the rules
+ * are compiled with the bounds of the blocks each one can fire on.
  */
 public final class SurfacePass {
     private static final EnumSet<Heightmap.Types> WORLDGEN_HEIGHTMAPS = EnumSet.of(Heightmap.Types.OCEAN_FLOOR_WG, Heightmap.Types.WORLD_SURFACE_WG);
@@ -37,7 +36,7 @@ public final class SurfacePass {
     private final SurfaceColumn column;
     private final BiomeZoom biomes;
     private final MaterialRuleContext context;
-    private final RuleEvaluator rule;
+    private final SurfaceRules rules;
     private final BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos();
 
     public SurfacePass(MaterialSystem system, RandomState randomState, BiomeManager biomeManager, WorldGenerationContext generationContext, ProtoChunk chunk,
@@ -49,9 +48,9 @@ public final class SurfacePass {
         this.maxY = heightAccessor.getMaxY();
         this.column = new SurfaceColumn(chunk, this.minY, this.maxY);
         this.biomes = new BiomeZoom(biomeManager, chunk);
-        this.context = new MaterialRuleContext(system, randomState, narrowedVolume(chunk, noiseChunk.volume()), noiseChunk.cachingSamplers(), this.biomes::get,
-            generationContext, possibleBiomes);
-        this.rule = ruleSource.compile(this.context);
+        DensityVolume volume = narrowedVolume(chunk, noiseChunk.volume());
+        this.context = new MaterialRuleContext(system, randomState, volume, noiseChunk.cachingSamplers(), this.biomes::get, generationContext, possibleBiomes);
+        this.rules = new RuleCompiler(this.context, randomState, noiseChunk.cachingSamplers(), volume, chunk.getMinY()).compile(ruleSource);
     }
 
     /** A proto chunk before light, whose writes update the worldgen heightmaps it already holds, zoomed by vanilla's biome manager. */
@@ -82,6 +81,7 @@ public final class SurfacePass {
 
         int height = this.chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z) + 1;
         this.context.updateXZ(blockX, blockZ, MaterialSystem.getSurfaceGradientX(this.chunk, x, z), MaterialSystem.getSurfaceGradientZ(this.chunk, x, z));
+        this.rules.moveTo(blockX, blockZ, height);
         applyRules(blockX, blockZ, height);
         if (surfaceBiome.is(Biomes.FROZEN_OCEAN) || surfaceBiome.is(Biomes.DEEP_FROZEN_OCEAN)) {
             this.system.frozenOceanExtension(this.context.getMinSurfaceLevel(), surfaceBiome.value(), this.column, this.blockPos, blockX, blockZ, startingHeight);
@@ -110,7 +110,7 @@ public final class SurfacePass {
                 stoneAboveDepth++;
                 this.context.updateY(stoneAboveDepth, y - nextCeilingStoneY + 1, waterHeight, y);
                 if (y >= this.minY && y <= this.maxY) {
-                    BlockState state = this.rule.tryApply(blockX, y, blockZ);
+                    BlockState state = this.rules.tryApply(blockX, y, blockZ);
                     if (state != null) {
                         this.column.setBlock(y, state);
                     }

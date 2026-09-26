@@ -2,7 +2,7 @@ package fr.hardel.mapple.mixin.terrain;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import fr.hardel.mapple.optimisation.terrain.SurfacePass;
+import fr.hardel.mapple.optimisation.surface.SurfacePass;
 import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;

@@ -1,4 +1,4 @@
-package fr.hardel.mapple.optimisation.terrain;
+package fr.hardel.mapple.optimisation.surface;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;

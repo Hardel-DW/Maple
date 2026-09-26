@@ -1,4 +1,4 @@
-package fr.hardel.mapple.optimisation.terrain;
+package fr.hardel.mapple.optimisation.surface;
 
 import java.util.ArrayList;
 import java.util.Collections;
