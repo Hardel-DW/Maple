@@ -6,32 +6,27 @@ Mapple was designed to take advantage of large-scale optimisations that scale, n
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
 # What it optimises
-The big part of a server's memory is air blocks that over-allocate RAM, and everything the game keeps around chunks just in case. Mapple removes what is useless.
+The big part of a server's memory is air blocks that over-allocate RAM, and everything the game keeps around chunks just in case. Mapple removes what is useless, without costing any CPU.
 
-- **Air.** Three chunk sections out of four are pure air. Mapple merges them into a single instance.
-- **Chunk copies.** For each loaded chunk, the game keeps an empty copy it never reads. Mapple removes it.
-- **Protections.** Each piece of chunk carries a heavy protection against simultaneous access. Mapple replaces it with a light version that does the same job.
-- **Block palettes.** When a chunk contains few kinds of blocks, Mapple packs them tighter in memory. On disk, nothing changes.
-- **Lists.** The game keeps lists of POI, structures and chunk types. They grow with every visited chunk and never shrink. Mapple cleans them when a chunk unloads.
+- **Air.** Three chunk sections out of four are pure air. Every chunk keeps its own sections, but all the empty ones share the same data.
+- **Chunk copies.** For each chunk used by the generation of its neighbours, the game builds an empty copy it never reads. Mapple removes it.
+- **Protections.** Each piece of chunk carries a heavy protection against simultaneous access, a debug check. Mapple removes it, as Lithium does.
+- **Lists.** The game keeps lists of POI and chunk types. They grow with every visited chunk and never shrink. Mapple cleans them when a chunk unloads.
 - **Shared pathfinding buffer.** Each mob owns its own pathfinding buffers that only grow, even when it does not move. Mobs share this memory.
-- **Cold storage for idle chunks.** A chunk waiting in the generation pipeline is compressed with LZ4 until someone needs it.
-- **Disk.** A chunk that was only loaded is not written back to disk if it is not modified. Mapple only saves what changed.
 
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
 # The gains
-Tested with Leafs, each isolated player generating new chunks costs 33 MB instead of 52 MB.
+Measured on a server without Leafs, 5 players flying over new land at 36 blocks per second, view distance 10. The generated world is identical to vanilla, block for block.
 
 | Measure | Vanilla | Mapple |
 |---|---|---|
-| Memory | 2 220 MB | 1 560 MB |
-| Objects in memory | 31 million | 16 million |
-| Chunks written at autosave | 23 210 | 3 377 |
-| Pathfinding nodes | 326 705 | 67 854 |
+| Live memory at the end of the run | 0.66 to 0.69 GB | 0.52 to 0.53 GB |
+| CPU per generated chunk | 27.9 ms | 26.7 ms |
 
 # FAQ
 **Compatible with Lithium and FerriteCore?**
-Yes, and both are recommended.
+Yes, and both are recommended. Mapple turns off none of Lithium's options.
 
 **Compatible with C2ME, Moonrise or VMP?**
 Not tested. They rewrite the same chunk structures.
