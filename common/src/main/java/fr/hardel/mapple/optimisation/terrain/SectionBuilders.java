@@ -26,17 +26,23 @@ public final class SectionBuilders {
     /** x and z inside the chunk, blockY inside the build height. */
     public BlockState get(int x, int blockY, int z) {
         SectionBuilder builder = reader(blockY);
-        return builder == null ? AIR : builder.get(x, SectionPos.sectionRelative(blockY), z);
+        return builder == null ? AIR : builder.get(builder.index(x, SectionPos.sectionRelative(blockY), z));
     }
 
     public byte kind(int x, int blockY, int z) {
         SectionBuilder builder = reader(blockY);
-        return builder == null ? BlockKind.AIR : builder.kind(x, SectionPos.sectionRelative(blockY), z);
+        return builder == null ? BlockKind.AIR : builder.kind(builder.index(x, SectionPos.sectionRelative(blockY), z));
     }
 
     /** Tells whether the block changed. */
     public boolean set(int x, int blockY, int z, BlockState state) {
-        return builder(index(blockY)).set(x, SectionPos.sectionRelative(blockY), z, state);
+        SectionBuilder builder = at(blockY);
+        return builder.set(builder.index(x, SectionPos.sectionRelative(blockY), z), state);
+    }
+
+    /** The builder of the section holding blockY, for a pass writing a run of blocks into it. */
+    SectionBuilder at(int blockY) {
+        return builder(index(blockY));
     }
 
     public void build() {

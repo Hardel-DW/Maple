@@ -61,17 +61,21 @@ final class SectionBuilder {
         }
     }
 
-    BlockState get(int x, int y, int z) {
-        return this.entries.get(this.ids[this.strategy.getIndex(x, y, z)]);
+    /** The index of a block of the section, from its coordinates inside it. */
+    int index(int x, int y, int z) {
+        return this.strategy.getIndex(x, y, z);
     }
 
-    byte kind(int x, int y, int z) {
-        return this.kinds[this.ids[this.strategy.getIndex(x, y, z)]];
+    BlockState get(int index) {
+        return this.entries.get(this.ids[index]);
+    }
+
+    byte kind(int index) {
+        return this.kinds[this.ids[index]];
     }
 
     /** Tells whether the block changed. */
-    boolean set(int x, int y, int z, BlockState state) {
-        int index = this.strategy.getIndex(x, y, z);
+    boolean set(int index, BlockState state) {
         int id = localId(state);
         int old = this.ids[index];
         if (old == id) {
