@@ -1,5 +1,7 @@
 package fr.hardel.mapple.optimisation.surface;
 
+import fr.hardel.mapple.optimisation.terrain.BlockKind;
+import fr.hardel.mapple.optimisation.terrain.SectionBuilders;
 import java.util.EnumSet;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
@@ -23,8 +25,8 @@ import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Vanilla's surface pass with its loop as is. The column reads and writes the proto chunk directly, the biome lookup is zoomed per chunk and the rules
- * are compiled with the bounds of the blocks each one can fire on.
+ * Vanilla's surface pass with its loop as is. The column reads and writes the sections through builders rebuilt at the end, the biome lookup is zoomed
+ * per chunk and the rules are compiled with the bounds of the blocks each one can fire on.
  */
 public final class SurfacePass {
     private static final EnumSet<Heightmap.Types> WORLDGEN_HEIGHTMAPS = EnumSet.of(Heightmap.Types.OCEAN_FLOOR_WG, Heightmap.Types.WORLD_SURFACE_WG);
@@ -33,6 +35,7 @@ public final class SurfacePass {
     private final ProtoChunk chunk;
     private final int minY;
     private final int maxY;
+    private final SectionBuilders sections;
     private final SurfaceColumn column;
     private final BiomeZoom biomes;
     private final MaterialRuleContext context;
@@ -46,7 +49,8 @@ public final class SurfacePass {
         LevelHeightAccessor heightAccessor = chunk.getHeightAccessorForGeneration();
         this.minY = heightAccessor.getMinY();
         this.maxY = heightAccessor.getMaxY();
-        this.column = new SurfaceColumn(chunk, this.minY, this.maxY);
+        this.sections = new SectionBuilders(chunk);
+        this.column = new SurfaceColumn(chunk, this.sections, this.minY, this.maxY);
         this.biomes = new BiomeZoom(biomeManager, chunk);
         DensityVolume volume = narrowedVolume(chunk, noiseChunk.volume());
         this.context = new MaterialRuleContext(system, randomState, volume, noiseChunk.cachingSamplers(), this.biomes::get, generationContext, possibleBiomes);
@@ -67,6 +71,8 @@ public final class SurfacePass {
                 surface(x, z);
             }
         }
+
+        this.sections.build();
     }
 
     private void surface(int x, int z) {
@@ -94,11 +100,11 @@ public final class SurfacePass {
         int nextCeilingStoneY = Integer.MAX_VALUE;
         int endY = this.chunk.getMinY();
         for (int y = height; y >= endY; y--) {
-            BlockState old = this.column.getBlock(y);
-            if (old.isAir()) {
+            byte kind = this.column.kind(y);
+            if (kind == BlockKind.AIR) {
                 stoneAboveDepth = 0;
                 waterHeight = Integer.MIN_VALUE;
-            } else if (!old.getFluidState().isEmpty()) {
+            } else if (kind == BlockKind.FLUID) {
                 if (waterHeight == Integer.MIN_VALUE) {
                     waterHeight = y + 1;
                 }
@@ -121,7 +127,7 @@ public final class SurfacePass {
 
     private int nextCeilingStone(int y, int endY) {
         for (int lookaheadY = y - 1; lookaheadY >= endY - 1; lookaheadY--) {
-            if (!this.system.isStone(this.column.getBlock(lookaheadY))) {
+            if (this.column.kind(lookaheadY) != BlockKind.SOLID) {
                 return lookaheadY + 1;
             }
         }

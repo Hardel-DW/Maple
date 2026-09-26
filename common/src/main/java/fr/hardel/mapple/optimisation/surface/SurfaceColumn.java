@@ -1,27 +1,34 @@
 package fr.hardel.mapple.optimisation.surface;
 
+import fr.hardel.mapple.optimisation.terrain.BlockKind;
+import fr.hardel.mapple.optimisation.terrain.SectionBuilders;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.BlockColumn;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 /**
- * The column of the surface pass on a proto chunk before light: ProtoChunk's own read and write, without its per call status and heightmap lookups.
- * A write reaches the section and the two worldgen heightmaps, as ProtoChunk's does at that status.
+ * The column of the surface pass on a proto chunk before light, read and written through its section builders. A write that changes a block updates the
+ * two worldgen heightmaps as ProtoChunk's does at that status, with vanilla's update reading the builders: the sections keep their old content until
+ * the pass ends. Rewriting the same block leaves them as they are.
  */
 final class SurfaceColumn implements BlockColumn {
     private final ProtoChunk chunk;
+    private final SectionBuilders sections;
     private final int minY;
     private final int maxY;
     private final Heightmap oceanFloor;
     private final Heightmap worldSurface;
     private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+    private int localX;
+    private int localZ;
 
-    SurfaceColumn(ProtoChunk chunk, int minY, int maxY) {
+    SurfaceColumn(ProtoChunk chunk, SectionBuilders sections, int minY, int maxY) {
         this.chunk = chunk;
+        this.sections = sections;
         this.minY = minY;
         this.maxY = maxY;
         this.oceanFloor = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
@@ -30,6 +37,8 @@ final class SurfaceColumn implements BlockColumn {
 
     void moveTo(int blockX, int blockZ) {
         this.pos.setX(blockX).setZ(blockZ);
+        this.localX = blockX & 15;
+        this.localZ = blockZ & 15;
     }
 
     @Override
@@ -38,8 +47,12 @@ final class SurfaceColumn implements BlockColumn {
             return Blocks.VOID_AIR.defaultBlockState();
         }
 
-        LevelChunkSection section = this.chunk.getSection(this.chunk.getSectionIndex(blockY));
-        return section.hasOnlyAir() ? Blocks.AIR.defaultBlockState() : section.getBlockState(this.pos.getX() & 15, blockY & 15, this.pos.getZ() & 15);
+        return this.sections.get(this.localX, blockY, this.localZ);
+    }
+
+    /** The kind of getBlock's state. */
+    byte kind(int blockY) {
+        return this.chunk.isOutsideBuildHeight(blockY) ? BlockKind.AIR : this.sections.kind(this.localX, blockY, this.localZ);
     }
 
     @Override
@@ -48,27 +61,42 @@ final class SurfaceColumn implements BlockColumn {
             return;
         }
 
-        this.pos.setY(blockY);
-        write(state);
+        if (!this.chunk.isOutsideBuildHeight(blockY) && this.sections.set(this.localX, blockY, this.localZ, state)) {
+            update(this.oceanFloor, Heightmap.Types.OCEAN_FLOOR_WG.isOpaque(), blockY, state);
+            update(this.worldSurface, Heightmap.Types.WORLD_SURFACE_WG.isOpaque(), blockY, state);
+        }
+
         if (!state.getFluidState().isEmpty()) {
-            this.chunk.markPosForPostProcessing(this.pos);
+            this.chunk.markPosForPostProcessing(this.pos.setY(blockY));
         }
     }
 
-    private void write(BlockState state) {
-        if (this.chunk.isOutsideBuildHeight(this.pos.getY())) {
+    /** Heightmap.update, which returns at once below the top of the column. */
+    private void update(Heightmap heightmap, Predicate<BlockState> opaque, int blockY, BlockState state) {
+        int firstAvailable = heightmap.getFirstAvailable(this.localX, this.localZ);
+        if (blockY <= firstAvailable - 2) {
             return;
         }
 
-        LevelChunkSection section = this.chunk.getSection(this.chunk.getSectionIndex(this.pos.getY()));
-        if (section.hasOnlyAir() && state.is(Blocks.AIR)) {
+        if (opaque.test(state)) {
+            if (blockY >= firstAvailable) {
+                heightmap.setHeight(this.localX, this.localZ, blockY + 1);
+            }
+
             return;
         }
 
-        int localX = this.pos.getX() & 15;
-        int localZ = this.pos.getZ() & 15;
-        section.setBlockState(localX, this.pos.getY() & 15, localZ, state);
-        this.oceanFloor.update(localX, this.pos.getY(), localZ, state);
-        this.worldSurface.update(localX, this.pos.getY(), localZ, state);
+        if (firstAvailable - 1 != blockY) {
+            return;
+        }
+
+        for (int y = blockY - 1; y >= this.chunk.getMinY(); y--) {
+            if (opaque.test(getBlock(y))) {
+                heightmap.setHeight(this.localX, this.localZ, y + 1);
+                return;
+            }
+        }
+
+        heightmap.setHeight(this.localX, this.localZ, this.chunk.getMinY());
     }
 }

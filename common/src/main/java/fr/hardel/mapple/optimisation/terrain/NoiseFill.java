@@ -1,7 +1,6 @@
 package fr.hardel.mapple.optimisation.terrain;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -13,7 +12,7 @@ import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
 import net.minecraft.world.level.levelgen.densityfunction.ScopedDensityBuffer;
 
 /**
- * Vanilla's noise fill in vanilla's order, the aquifer keeps state between calls. Blocks go to section builders instead of the chunk, and a heightmap is
+ * Vanilla's noise fill in vanilla's order, the aquifer keeps state between calls. Blocks go to the section builders instead of the chunk, and a heightmap is
  * updated until the first block of the column its predicate accepts: every lower block returns early from update.
  */
 public final class NoiseFill {
@@ -24,8 +23,7 @@ public final class NoiseFill {
     private final BlockState defaultBlock;
     private final Heightmap oceanFloor;
     private final Heightmap worldSurface;
-    private final SectionBuilder[] builders;
-    private final int minSectionY;
+    private final SectionBuilders sections;
     private final BlockPos.MutableBlockPos fluidPos = new BlockPos.MutableBlockPos();
 
     public NoiseFill(ChunkAccess chunk, NoiseChunk noiseChunk, BlockState defaultBlock) {
@@ -34,8 +32,7 @@ public final class NoiseFill {
         this.defaultBlock = defaultBlock;
         this.oceanFloor = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
         this.worldSurface = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
-        this.builders = new SectionBuilder[chunk.getSectionsCount()];
-        this.minSectionY = chunk.getMinSectionY();
+        this.sections = new SectionBuilders(chunk);
     }
 
     public void run(DensitySampler.Bound finalDensity) {
@@ -48,11 +45,7 @@ public final class NoiseFill {
             }
         }
 
-        for (SectionBuilder builder : this.builders) {
-            if (builder != null) {
-                builder.build();
-            }
-        }
+        this.sections.build();
     }
 
     private void fillColumn(ScopedDensityBuffer density, DensityVolume volume, int x, int z) {
@@ -69,25 +62,13 @@ public final class NoiseFill {
                 continue;
             }
 
-            builder(blockY).set(x, SectionPos.sectionRelative(blockY), z, state);
+            this.sections.set(x, blockY, z, state);
             oceanFloorSettled = oceanFloorSettled || settle(this.oceanFloor, Heightmap.Types.OCEAN_FLOOR_WG, x, blockY, z, state);
             worldSurfaceSettled = worldSurfaceSettled || settle(this.worldSurface, Heightmap.Types.WORLD_SURFACE_WG, x, blockY, z, state);
             if (aquifer.shouldScheduleFluidUpdate() && !state.getFluidState().isEmpty()) {
                 this.chunk.markPosForPostProcessing(this.fluidPos.set(blockX, blockY, blockZ));
             }
         }
-    }
-
-    /** The section index from the minimum read once: the chunk's own lookup walks its height accessor on every block. */
-    private SectionBuilder builder(int blockY) {
-        int index = SectionPos.blockToSectionCoord(blockY) - this.minSectionY;
-        SectionBuilder builder = this.builders[index];
-        if (builder == null) {
-            builder = new SectionBuilder(this.chunk.getSection(index));
-            this.builders[index] = builder;
-        }
-
-        return builder;
     }
 
     private static boolean settle(Heightmap heightmap, Heightmap.Types type, int x, int blockY, int z, BlockState state) {
