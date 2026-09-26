@@ -39,13 +39,12 @@ final class SectionBuilder {
         this.ids = new short[this.strategy.entryCount()];
         PalettedContainer.Data<BlockState> data = states.data;
         if (data.configuration() instanceof Configuration.Global) {
-            decodeGlobal(data);
+            decode(data.storage(), data.palette());
             return;
         }
 
-        Palette<BlockState> palette = data.palette();
-        for (int id = 0; id < palette.getSize(); id++) {
-            add(palette.valueFor(id));
+        for (int id = 0; id < data.palette().getSize(); id++) {
+            add(data.palette().valueFor(id));
         }
 
         if (data.storage() instanceof ZeroBitStorage) {
@@ -53,12 +52,7 @@ final class SectionBuilder {
             return;
         }
 
-        int[] raw = new int[this.ids.length];
-        data.storage().unpack(raw);
-        for (int index = 0; index < raw.length; index++) {
-            this.ids[index] = (short) raw[index];
-            this.counts[raw[index]]++;
-        }
+        decode(data.storage(), null);
     }
 
     /** The index of a block of the section, from its coordinates inside it. */
@@ -100,15 +94,34 @@ final class SectionBuilder {
         countBlocks();
     }
 
-    /** A global palette holds registry ids: each distinct state gets a local id in the order it first appears. */
-    private void decodeGlobal(PalettedContainer.Data<BlockState> data) {
-        int[] raw = new int[this.ids.length];
-        data.storage().unpack(raw);
-        for (int index = 0; index < raw.length; index++) {
-            int id = localId(data.palette().valueFor(raw[index]));
-            this.ids[index] = (short) id;
-            this.counts[id]++;
+    /**
+     * Reads every raw id, in the layout storage() packs: a global palette holds registry ids, each distinct state then gets a local id in the order it
+     * first appears. Any other palette's ids are already the local ones.
+     */
+    private void decode(BitStorage storage, @Nullable Palette<BlockState> global) {
+        if (!(storage instanceof SimpleBitStorage simple)) {
+            for (int index = 0; index < this.ids.length; index++) {
+                store(index, storage.get(index), global);
+            }
+
+            return;
         }
+
+        int bits = simple.getBits();
+        int valuesPerLong = 64 / bits;
+        long mask = (1L << bits) - 1;
+        int index = 0;
+        for (long cell : simple.getRaw()) {
+            for (int slot = 0; slot < valuesPerLong && index < this.ids.length; slot++, index++) {
+                store(index, (int) (cell >>> slot * bits & mask), global);
+            }
+        }
+    }
+
+    private void store(int index, int raw, @Nullable Palette<BlockState> global) {
+        int id = global == null ? raw : localId(global.valueFor(raw));
+        this.ids[index] = (short) id;
+        this.counts[id]++;
     }
 
     /** Vanilla's recalcBlockCounts, over the counts of the palette. */

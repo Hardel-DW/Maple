@@ -66,9 +66,11 @@ public final class SurfacePass {
     }
 
     public void run() {
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                surface(x, z);
+        try (this.rules) {
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    surface(x, z);
+                }
             }
         }
 
