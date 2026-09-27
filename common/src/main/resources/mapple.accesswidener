@@ -7,3 +7,52 @@ accessible field net/minecraft/world/level/chunk/storage/SectionStorage loadLock
 accessible field net/minecraft/world/level/chunk/storage/SectionStorage levelHeightAccessor Lnet/minecraft/world/level/LevelHeightAccessor;
 accessible field net/minecraft/world/level/chunk/ChunkAccess noiseChunk Lnet/minecraft/world/level/levelgen/NoiseChunk;
 accessible class net/minecraft/world/level/chunk/PalettedContainer$Data
+accessible field net/minecraft/world/level/chunk/PalettedContainer strategy Lnet/minecraft/world/level/chunk/Strategy;
+accessible field net/minecraft/world/level/chunk/PalettedContainer data Lnet/minecraft/world/level/chunk/PalettedContainer$Data;
+accessible method net/minecraft/world/level/chunk/PalettedContainer <init> (Lnet/minecraft/world/level/chunk/Strategy;Lnet/minecraft/world/level/chunk/Configuration;Lnet/minecraft/util/BitStorage;Lnet/minecraft/world/level/chunk/Palette;)V
+accessible method net/minecraft/world/level/chunk/Strategy getConfigurationForPaletteSize (I)Lnet/minecraft/world/level/chunk/Configuration;
+accessible field net/minecraft/world/level/chunk/LevelChunkSection states Lnet/minecraft/world/level/chunk/PalettedContainer;
+mutable field net/minecraft/world/level/chunk/LevelChunkSection states Lnet/minecraft/world/level/chunk/PalettedContainer;
+accessible field net/minecraft/world/level/chunk/LevelChunkSection nonEmptyBlockCount S
+accessible field net/minecraft/world/level/chunk/LevelChunkSection fluidCount S
+accessible field net/minecraft/world/level/chunk/LevelChunkSection tickingBlockCount S
+accessible field net/minecraft/world/level/chunk/LevelChunkSection tickingFluidCount S
+accessible method net/minecraft/world/level/levelgen/NoiseChunk getInterpolatedState ()Lnet/minecraft/world/level/block/state/BlockState;
+accessible method net/minecraft/world/level/levelgen/NoiseChunk cellWidth ()I
+accessible method net/minecraft/world/level/levelgen/NoiseChunk cellHeight ()I
+accessible method net/minecraft/world/level/levelgen/NoiseBasedChunkGenerator createNoiseChunk (Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/levelgen/blending/Blender;Lnet/minecraft/world/level/levelgen/RandomState;)Lnet/minecraft/world/level/levelgen/NoiseChunk;
+accessible field net/minecraft/world/level/biome/BiomeManager noiseBiomeSource Lnet/minecraft/world/level/biome/BiomeManager$NoiseBiomeSource;
+accessible field net/minecraft/world/level/biome/BiomeManager biomeZoomSeed J
+accessible method net/minecraft/world/level/biome/BiomeManager getFiddledDistance (JIIIDDD)D
+accessible method net/minecraft/world/level/levelgen/Heightmap setHeight (III)V
+accessible field net/minecraft/world/level/levelgen/SurfaceSystem defaultBlock Lnet/minecraft/world/level/block/state/BlockState;
+accessible method net/minecraft/world/level/levelgen/SurfaceSystem erodedBadlandsExtension (Lnet/minecraft/world/level/chunk/BlockColumn;IIILnet/minecraft/world/level/LevelHeightAccessor;)V
+accessible method net/minecraft/world/level/levelgen/SurfaceSystem frozenOceanExtension (ILnet/minecraft/world/level/biome/Biome;Lnet/minecraft/world/level/chunk/BlockColumn;Lnet/minecraft/core/BlockPos$MutableBlockPos;III)V
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Context
+accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context <init> (Lnet/minecraft/world/level/levelgen/SurfaceSystem;Lnet/minecraft/world/level/levelgen/RandomState;Lnet/minecraft/world/level/chunk/ChunkAccess;Lnet/minecraft/world/level/levelgen/NoiseChunk;Ljava/util/function/Function;Lnet/minecraft/world/level/levelgen/WorldGenerationContext;Ljava/util/Set;)V
+accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context updateXZ (II)V
+accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context updateY (IIII)V
+accessible method net/minecraft/world/level/levelgen/SurfaceRules$Context getMinSurfaceLevel ()I
+accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context blockY I
+accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context stoneDepthAbove I
+accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context stoneDepthBelow I
+accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context surfaceDepth I
+accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context context Lnet/minecraft/world/level/levelgen/WorldGenerationContext;
+accessible field net/minecraft/world/level/levelgen/SurfaceRules$Context possibleBiomes Ljava/util/Set;
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Condition
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$SurfaceRule
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$BlockRuleSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Bandlands
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$SequenceRuleSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$TestRuleSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$NotConditionSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$YConditionSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$AbovePreliminarySurface
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$StoneDepthCheck
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$VerticalGradientConditionSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$BiomeConditionSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$WaterConditionSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$NoiseThresholdConditionSource
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Temperature
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Hole
+accessible class net/minecraft/world/level/levelgen/SurfaceRules$Steep

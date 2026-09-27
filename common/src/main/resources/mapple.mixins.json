@@ -10,6 +10,8 @@
 		"chunk.NoiseChunkReleaseMixin",
 		"feature.ChunkAccessMixin",
 		"feature.OreFeatureMixin",
+		"terrain.NoiseBasedChunkGeneratorMixin",
+		"terrain.SurfaceSystemMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.PoiManagerMixin",
 		"pathfinding.PathFinderMixin",
