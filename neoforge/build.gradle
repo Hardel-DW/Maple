@@ -13,9 +13,13 @@ def accessTransformer = tasks.register('accessTransformer') {
 	inputs.file(widener)
 	outputs.file(output)
 	doLast {
-		def lines = widener.readLines().findAll { it.startsWith('accessible') }.collect { line ->
+		def lines = widener.readLines().findAll { it.startsWith('accessible') || it.startsWith('mutable') }.collect { line ->
 			def parts = line.split(/\s+/)
 			def owner = parts[2].replace('/', '.')
+			if (parts[0] == 'mutable') {
+				return "public-f ${owner} ${parts[3]}"
+			}
+
 			switch (parts[1]) {
 				case 'class': return "public ${owner}"
 				case 'field': return "public ${owner} ${parts[3]}"
