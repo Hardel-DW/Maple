@@ -8,6 +8,8 @@
 		"section.LevelMixin",
 		"section.PalettedContainerMixin",
 		"chunk.NoiseChunkReleaseMixin",
+		"feature.ChunkAccessMixin",
+		"feature.OreFeatureMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.PoiManagerMixin",
 		"pathfinding.PathFinderMixin",
