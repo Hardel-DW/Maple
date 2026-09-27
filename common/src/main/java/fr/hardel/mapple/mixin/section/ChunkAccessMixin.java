@@ -3,10 +3,7 @@ package fr.hardel.mapple.mixin.section;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import fr.hardel.mapple.optimisation.section.AirSectionCacheHolder;
-import fr.hardel.mapple.optimisation.section.AirSectionCompaction;
-import fr.hardel.mapple.optimisation.section.DiscardingSection;
-import fr.hardel.mapple.optimisation.section.SharedAirSection;
+import fr.hardel.mapple.optimisation.section.SharedSectionDataHolder;
 import java.util.Arrays;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -15,23 +12,18 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainerFactory;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.lighting.ChunkSkyLightSources;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** An imposter never reads its own sections, a proto chunk of a level starts with its shared empty one, and uniform air goes back to the shared section of its biome. */
+/**
+ * An imposter reads everything from the chunk it wraps: its own sections only take the writes vanilla throws away, and its sky sources are the wrapped ones.
+ * A proto chunk of a level shares its block data from the start; one built for an upgrade or by a mod outside a level has no level to share with.
+ */
 @Mixin(ChunkAccess.class)
-public abstract class ChunkAccessMixin implements AirSectionCompaction {
+public abstract class ChunkAccessMixin {
     @Shadow
     protected ChunkSkyLightSources skyLightSources;
-
-    @Shadow
-    @Final
-    protected LevelHeightAccessor levelHeightAccessor;
-
-    @Shadow
-    public abstract LevelChunkSection[] getSections();
 
     @WrapOperation(
         method = "<init>",
@@ -41,32 +33,17 @@ public abstract class ChunkAccessMixin implements AirSectionCompaction {
                 + "Lnet/minecraft/world/level/chunk/PalettedContainerFactory;[Lnet/minecraft/world/level/chunk/LevelChunkSection;)V"
         )
     )
-    private void mapple$shareMissingSections(PalettedContainerFactory containerFactory, LevelChunkSection[] sections, Operation<Void> original,
+    private void mapple$imposterSections(PalettedContainerFactory containerFactory, LevelChunkSection[] sections, Operation<Void> original,
         @Local(argsOnly = true) LevelHeightAccessor heightAccessor) {
         if ((Object) this instanceof ImposterProtoChunk) {
-            Arrays.fill(sections, DiscardingSection.INSTANCE);
+            Arrays.fill(sections, ((SharedSectionDataHolder) heightAccessor).mapple$sharedSectionData().imposterSection());
             this.skyLightSources = null;
             return;
         }
 
-        if (!((Object) this instanceof ProtoChunk) || !(heightAccessor instanceof AirSectionCacheHolder level)) {
-            original.call(containerFactory, sections);
-            return;
-        }
-
-        SharedAirSection empty = level.mapple$airSections().empty();
-        for (int index = 0; index < sections.length; index++) {
-            if (sections[index] == null) {
-                sections[index] = empty;
-            }
-        }
-    }
-
-    /** A chunk built outside a level, a mod's template or preview, has no shared sections to go back to. */
-    @Override
-    public void mapple$compactAirSections() {
-        if (this.levelHeightAccessor instanceof AirSectionCacheHolder level) {
-            level.mapple$airSections().compact(getSections());
+        original.call(containerFactory, sections);
+        if ((Object) this instanceof ProtoChunk && heightAccessor instanceof SharedSectionDataHolder level) {
+            level.mapple$sharedSectionData().shareStates(sections);
         }
     }
 }

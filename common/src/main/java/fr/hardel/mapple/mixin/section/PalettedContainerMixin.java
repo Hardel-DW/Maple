@@ -1,9 +1,13 @@
 package fr.hardel.mapple.mixin.section;
 
+import fr.hardel.mapple.optimisation.section.SharedSectionData;
+import fr.hardel.mapple.optimisation.section.SingleValueSharing;
 import net.minecraft.util.ThreadingDetector;
 import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.SingleValuePalette;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -11,12 +15,17 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PalettedContainer.class)
-public abstract class PalettedContainerMixin {
+public abstract class PalettedContainerMixin<T> implements SingleValueSharing {
     @Unique
-    private static final ThreadingDetector UNUSED_DETECTOR = new ThreadingDetector("PalettedContainer");
+    private static final ThreadingDetector NEVER_USED = new ThreadingDetector("PalettedContainer");
 
-    @Unique
-    private @Nullable Thread mapple$owner;
+    @Shadow
+    private volatile PalettedContainer.Data<T> data;
+
+    @Shadow
+    private PalettedContainer.Data<T> createOrReuseData(PalettedContainer.@Nullable Data<T> oldData, int targetBits) {
+        throw new AssertionError();
+    }
 
     @Redirect(
         method = {
@@ -27,30 +36,34 @@ public abstract class PalettedContainerMixin {
         at = @At(value = "NEW", target = "(Ljava/lang/String;)Lnet/minecraft/util/ThreadingDetector;"),
         require = 3
     )
-    private static ThreadingDetector mapple$sharedDetector(String name) {
-        return UNUSED_DETECTOR;
+    private static ThreadingDetector mapple$noDetector(String name) {
+        return NEVER_USED;
     }
 
-    @Inject(method = "acquire", at = @At("HEAD"), cancellable = true)
-    private void mapple$acquire(CallbackInfo callback) {
-        synchronized (this) {
-            Thread owner = this.mapple$owner;
-            if (owner != null) {
-                throw ThreadingDetector.makeThreadingException("PalettedContainer", owner);
-            }
-
-            this.mapple$owner = Thread.currentThread();
-        }
-
+    /** Lithium's no_locking: the check only catches a misbehaving mod, and costs a lock per write. */
+    @Inject(method = {"acquire", "release"}, at = @At("HEAD"), cancellable = true, require = 2)
+    private void mapple$noCheck(CallbackInfo callback) {
         callback.cancel();
     }
 
-    @Inject(method = "release", at = @At("HEAD"), cancellable = true)
-    private void mapple$release(CallbackInfo callback) {
-        synchronized (this) {
-            this.mapple$owner = null;
-        }
+    /** The one vanilla path that writes into a data in place, so it never reuses one: that data may be shared. */
+    @Redirect(
+        method = "read",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/chunk/PalettedContainer;createOrReuseData(Lnet/minecraft/world/level/chunk/PalettedContainer$Data;I)"
+                + "Lnet/minecraft/world/level/chunk/PalettedContainer$Data;"
+        )
+    )
+    private PalettedContainer.Data<T> mapple$freshData(PalettedContainer<T> container, PalettedContainer.Data<T> oldData, int targetBits) {
+        return this.createOrReuseData(null, targetBits);
+    }
 
-        callback.cancel();
+    @Override
+    public void mapple$share(SharedSectionData shared) {
+        PalettedContainer.Data<T> current = this.data;
+        if (current.palette() instanceof SingleValuePalette<T> palette) {
+            this.data = shared.canonical(palette.valueFor(0), current);
+        }
     }
 }
