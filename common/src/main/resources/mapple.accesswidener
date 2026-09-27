@@ -27,3 +27,5 @@ accessible field net/minecraft/world/level/chunk/LevelChunkSection fluidCount S
 accessible field net/minecraft/world/level/chunk/LevelChunkSection tickingBlockCount S
 accessible field net/minecraft/world/level/chunk/LevelChunkSection tickingFluidCount S
 accessible method net/minecraft/world/level/levelgen/Heightmap setHeight (III)V
+accessible field net/minecraft/world/level/levelgen/Aquifer$NoiseBasedAquifer skipSamplingAboveY I
+accessible field net/minecraft/world/level/levelgen/Aquifer$NoiseBasedAquifer globalFluidPicker Lnet/minecraft/world/level/levelgen/Aquifer$FluidPicker;

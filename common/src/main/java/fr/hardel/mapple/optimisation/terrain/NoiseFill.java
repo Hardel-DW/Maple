@@ -11,10 +11,11 @@ import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.densityfunction.DensitySampler;
 import net.minecraft.world.level.levelgen.densityfunction.DensityVolume;
 import net.minecraft.world.level.levelgen.densityfunction.ScopedDensityBuffer;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Vanilla's noise fill in vanilla's order, the aquifer keeps state between calls. Blocks go to the section builders instead of the chunk, and a heightmap is
- * updated until the first block of the column its predicate accepts: every lower block returns early from update.
+ * Vanilla's noise fill in vanilla's order, the aquifer keeps state between calls. Blocks go to the section builders instead of the chunk, and each
+ * worldgen heightmap follows the column as vanilla's update on every block would.
  */
 public final class NoiseFill {
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
@@ -22,18 +23,21 @@ public final class NoiseFill {
     private final ChunkAccess chunk;
     private final NoiseChunk noiseChunk;
     private final BlockState defaultBlock;
-    private final Heightmap oceanFloor;
-    private final Heightmap worldSurface;
+    private final ColumnHeightmap oceanFloor;
+    private final ColumnHeightmap worldSurface;
     private final SectionBuilders sections;
     private final BlockPos.MutableBlockPos fluidPos = new BlockPos.MutableBlockPos();
+    private final Aquifer.@Nullable NoiseBasedAquifer noiseAquifer;
+    private boolean fluidUpdate;
 
     public NoiseFill(ChunkAccess chunk, NoiseChunk noiseChunk, BlockState defaultBlock) {
         this.chunk = chunk;
         this.noiseChunk = noiseChunk;
         this.defaultBlock = defaultBlock;
-        this.oceanFloor = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
-        this.worldSurface = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        this.oceanFloor = new ColumnHeightmap(chunk, Heightmap.Types.OCEAN_FLOOR_WG);
+        this.worldSurface = new ColumnHeightmap(chunk, Heightmap.Types.WORLD_SURFACE_WG);
         this.sections = new SectionBuilders(chunk);
+        this.noiseAquifer = noiseChunk.aquifer().getClass() == Aquifer.NoiseBasedAquifer.class ? (Aquifer.NoiseBasedAquifer) noiseChunk.aquifer() : null;
     }
 
     public void run(DensitySampler.Bound finalDensity) {
@@ -54,13 +58,13 @@ public final class NoiseFill {
         Aquifer aquifer = this.noiseChunk.aquifer();
         int blockX = volume.blockX(x);
         int blockZ = volume.blockZ(z);
-        boolean oceanFloorSettled = false;
-        boolean worldSurfaceSettled = false;
+        this.oceanFloor.moveTo(x, z);
+        this.worldSurface.moveTo(x, z);
         SectionBuilder builder = null;
         int builderSection = Integer.MIN_VALUE;
         for (int y = volume.sizeY() - 1; y >= 0; y--) {
             int blockY = volume.blockY(y);
-            BlockState computed = aquifer.computeSubstance(blockX, blockY, blockZ, density.get(volume.indexUnchecked(x, y, z)));
+            BlockState computed = substance(aquifer, blockX, blockY, blockZ, density.get(volume.indexUnchecked(x, y, z)));
             BlockState state = computed == null ? this.defaultBlock : computed;
             if (state == AIR) {
                 continue;
@@ -73,16 +77,26 @@ public final class NoiseFill {
 
             int index = builder.index(x, SectionPos.sectionRelative(blockY), z);
             builder.set(index, state);
-            oceanFloorSettled = oceanFloorSettled || settle(this.oceanFloor, Heightmap.Types.OCEAN_FLOOR_WG, x, blockY, z, state);
-            worldSurfaceSettled = worldSurfaceSettled || settle(this.worldSurface, Heightmap.Types.WORLD_SURFACE_WG, x, blockY, z, state);
-            if (builder.kind(index) == BlockKind.FLUID && aquifer.shouldScheduleFluidUpdate()) {
+            this.oceanFloor.write(blockY, state);
+            this.worldSurface.write(blockY, state);
+            if (builder.kind(index) == BlockKind.FLUID && this.fluidUpdate) {
                 this.chunk.markPosForPostProcessing(this.fluidPos.set(blockX, blockY, blockZ));
             }
         }
     }
 
-    private static boolean settle(Heightmap heightmap, Heightmap.Types type, int x, int blockY, int z, BlockState state) {
-        heightmap.update(x, blockY, z, state);
-        return type.isOpaque().test(state);
+    /**
+     * The aquifer's substance and its fluid update flag. The noise based aquifer's two first branches are taken here, as each still costs a call there:
+     * a solid block, then a block above its sampled height, which takes the global fluid. Neither schedules a fluid update.
+     */
+    private @Nullable BlockState substance(Aquifer aquifer, int blockX, int blockY, int blockZ, double density) {
+        if (this.noiseAquifer == null || !(density > 0.0) && blockY <= this.noiseAquifer.skipSamplingAboveY) {
+            BlockState computed = aquifer.computeSubstance(blockX, blockY, blockZ, density);
+            this.fluidUpdate = aquifer.shouldScheduleFluidUpdate();
+            return computed;
+        }
+
+        this.fluidUpdate = false;
+        return density > 0.0 ? null : this.noiseAquifer.globalFluidPicker.computeFluid(blockX, blockY, blockZ).at(blockY);
     }
 }

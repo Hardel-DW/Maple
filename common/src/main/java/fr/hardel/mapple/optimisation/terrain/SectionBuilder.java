@@ -171,8 +171,14 @@ final class SectionBuilder {
 
         int valuesPerLong = 64 / bits;
         long[] data = new long[(this.ids.length + valuesPerLong - 1) / valuesPerLong];
-        for (int index = 0; index < this.ids.length; index++) {
-            data[index / valuesPerLong] |= (long) paletteIds[this.ids[index]] << (index % valuesPerLong * bits);
+        int index = 0;
+        for (int cell = 0; cell < data.length; cell++) {
+            long word = 0;
+            for (int slot = 0; slot < valuesPerLong && index < this.ids.length; slot++, index++) {
+                word |= (long) paletteIds[this.ids[index]] << slot * bits;
+            }
+
+            data[cell] = word;
         }
 
         return new SimpleBitStorage(bits, this.ids.length, data);
