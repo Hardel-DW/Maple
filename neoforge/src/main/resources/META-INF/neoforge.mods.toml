@@ -7,7 +7,7 @@ displayName = "Mapple"
 iconFile = "assets/mapple/icon.png"
 authors = "Hardel"
 description = '''
-Memory optimisation for the dedicated server.
+Memory optimisation for the server, dedicated or in a singleplayer game.
 '''
 
 [[dependencies.mapple]]
@@ -15,7 +15,7 @@ modId = "minecraft"
 type = "required"
 versionRange = "${minecraft_range}"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"
 
 [[mixins]]
 config = "mapple.mixins.json"
