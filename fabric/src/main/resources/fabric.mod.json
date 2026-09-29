@@ -3,13 +3,13 @@
 	"id": "mapple",
 	"version": "${version}",
 	"name": "Mapple",
-	"description": "Memory optimisation for the dedicated server.",
+	"description": "Memory optimisation for the server, dedicated or in a singleplayer game.",
 	"authors": [
 		"Hardel"
 	],
 	"license": "All-Rights-Reserved",
 	"icon": "assets/mapple/icon.png",
-	"environment": "server",
+	"environment": "*",
 	"mixins": [
 		"mapple.mixins.json"
 	],
