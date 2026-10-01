@@ -1,0 +1,16 @@
+{
+	"schemaVersion": 1,
+	"id": "mapple-gametest",
+	"version": "1",
+	"name": "Mapple Game Tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"fr.hardel.mapple.gametest.BlenderTest"
+		]
+	},
+	"depends": {
+		"mapple": "*",
+		"fabric-gametest-api-v1": "*"
+	}
+}
