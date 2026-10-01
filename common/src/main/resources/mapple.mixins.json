@@ -9,6 +9,7 @@
 		"section.PalettedContainerMixin",
 		"chunk.ChunkUnloadMixin",
 		"chunk.PoiManagerMixin",
+		"terrain.BlenderMixin",
 		"terrain.MaterialSystemMixin",
 		"terrain.NoiseBasedChunkGeneratorMixin",
 		"feature.ChunkAccessMixin",
