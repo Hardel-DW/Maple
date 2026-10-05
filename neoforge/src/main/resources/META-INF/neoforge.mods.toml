@@ -1,16 +1,16 @@
 license = "All-Rights-Reserved"
 
 [[mods]]
-modId = "mapple"
+modId = "maple"
 version = "${version}"
-displayName = "Mapple"
-iconFile = "assets/mapple/icon.png"
+displayName = "Maple"
+iconFile = "assets/maple/icon.png"
 authors = "Hardel"
 description = '''
 Memory optimisation for the server, dedicated or in a singleplayer game.
 '''
 
-[[dependencies.mapple]]
+[[dependencies.maple]]
 modId = "minecraft"
 type = "required"
 versionRange = "${minecraft_range}"
@@ -18,4 +18,4 @@ ordering = "NONE"
 side = "BOTH"
 
 [[mixins]]
-config = "mapple.mixins.json"
+config = "maple.mixins.json"

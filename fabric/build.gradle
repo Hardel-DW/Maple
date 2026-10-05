@@ -3,13 +3,13 @@ plugins {
 }
 
 base {
-	archivesName = "Mapple-fabric-${minecraftMajor}"
+	archivesName = "Maple-fabric-${minecraftMajor}"
 }
 
 fabricApi {
 	configureTests {
 		createSourceSet = true
-		modId = "mapple-gametest"
+		modId = "maple-gametest"
 		eula = true
 	}
 }
@@ -21,7 +21,7 @@ dependencies {
 }
 
 loom {
-	accessWidenerPath = project(':common').file('src/main/resources/mapple.accesswidener')
+	accessWidenerPath = project(':common').file('src/main/resources/maple.accesswidener')
 
 	runs {
 		server {
@@ -50,7 +50,7 @@ processResources {
 publishing {
 	publications {
 		create('mavenJava', MavenPublication) {
-			artifactId = "mapple-fabric-${minecraftMajor}"
+			artifactId = "maple-fabric-${minecraftMajor}"
 			from components.java
 		}
 	}
