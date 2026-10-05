@@ -10,9 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PalettedContainer.class)
 public abstract class PalettedContainerMixin<T> implements SingleValueSharing {
@@ -40,10 +38,13 @@ public abstract class PalettedContainerMixin<T> implements SingleValueSharing {
         return NEVER_USED;
     }
 
-    /** Lithium's no_locking: the check only catches a misbehaving mod, and costs a lock per write. */
-    @Inject(method = {"acquire", "release"}, at = @At("HEAD"), cancellable = true, require = 2)
-    private void maple$noCheck(CallbackInfo callback) {
-        callback.cancel();
+    /** Lithium's no_locking: the check only catches a misbehaving mod, and costs a lock per write. Lithium overwrites both methods, hence require 0. */
+    @Redirect(method = "acquire", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ThreadingDetector;checkAndLock()V"), require = 0)
+    private void maple$noLock(ThreadingDetector detector) {
+    }
+
+    @Redirect(method = "release", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ThreadingDetector;checkAndUnlock()V"), require = 0)
+    private void maple$noUnlock(ThreadingDetector detector) {
     }
 
     /** The one vanilla path that writes into a data in place, so it never reuses one: that data may be shared. */
