@@ -1,11 +1,12 @@
 # Maple - Optimisations
-Maple fonctionne sur n'importe quel serveur Fabric/NeoForge en server-side à partir de la 26.1. Il réduit la mémoire RAM d'un serveur Minecraft. Il est côté serveur, sans config, et ne change rien au jeu.
+Maple fonctionne sur n'importe quel serveur Fabric/NeoForge en server-side à partir de la 26.1. Il réduit la mémoire d'un serveur Minecraft et accélère la génération du monde. Il est côté serveur, sans config, et ne change rien au jeu.
 
 Maple a été pensé pour tirer parti des optimisations à grande échelle qui scalent, notamment pour le bon fonctionnement de **[Leafs](https://modrinth.com/mod/leafs)**, le mod qui fait tourner le monde en multithread.
 
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
 # Ce qu'il optimise
+## La mémoire
 La grosse partie de la mémoire d'un serveur, c'est des blocs d'air qui surallouent de la RAM, et tout ce que le jeu garde autour des chunks au cas où. Maple retire ce qui ne sert à rien, sans coûter de CPU.
 
 - **L'air.** Trois sections de chunk sur quatre sont de l'air pur. Chaque chunk garde ses propres sections, mais toutes les vides partagent les mêmes données.
@@ -13,6 +14,14 @@ La grosse partie de la mémoire d'un serveur, c'est des blocs d'air qui surallou
 - **Les protections.** Chaque morceau de chunk embarque une protection lourde contre les accès simultanés, un contrôle de débogage. Maple la retire, comme Lithium.
 - **Les listes.** Le jeu tient des listes de POI et de types de chunks. Elles grossissent avec chaque chunk visité et ne rétrécissent jamais. Maple les nettoie quand un chunk se décharge.
 - **Buffer de pathfinding partagé.** Chaque mob possède ses propres buffers de pathfinding qui ne font que grossir, même quand il ne bouge pas. Les mobs se partagent cette mémoire.
+
+## La génération
+Maple accélère aussi la création des nouveaux chunks, sans changer un seul bloc.
+
+- **Le terrain.** Le jeu pose les blocs d'un chunk un par un. Maple remplit chaque section en une seule fois.
+- **La surface.** Herbe, sable, neige : le jeu teste toutes les règles de surface sur chaque bloc. Maple les prépare une fois par chunk et ne teste que celles qui peuvent s'appliquer.
+- **Les minerais.** Un filon placé plus haut que le sol du chunk est écarté tout de suite, au lieu d'être testé colonne par colonne.
+- **Les feuilles.** La distance d'une feuille à son tronc est gardée en mémoire, et une feuille qui ne change pas n'est plus réécrite.
 
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
