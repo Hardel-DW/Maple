@@ -1,11 +1,12 @@
 # Maple - Optimisations
-Maple works on any Fabric/NeoForge server, server-side, from 26.1. It reduces the RAM of a Minecraft server. It is server-side, has no config, and changes nothing in the game.
+Maple works on any Fabric/NeoForge server, server-side, from 26.1. It reduces the memory of a Minecraft server and speeds up world generation. It is server-side, has no config, and changes nothing in the game.
 
 Maple was designed to take advantage of large-scale optimisations that scale, notably for the proper working of **[Leafs](https://modrinth.com/mod/leafs)**, the mod that runs the world in multithread.
 
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
 # What it optimises
+## Memory
 The big part of a server's memory is air blocks that over-allocate RAM, and everything the game keeps around chunks just in case. Maple removes what is useless, without costing any CPU.
 
 - **Air.** Three chunk sections out of four are pure air. Every chunk keeps its own sections, but all the empty ones share the same data.
@@ -13,6 +14,14 @@ The big part of a server's memory is air blocks that over-allocate RAM, and ever
 - **Protections.** Each piece of chunk carries a heavy protection against simultaneous access, a debug check. Maple removes it, as Lithium does.
 - **Lists.** The game keeps lists of POI and chunk types. They grow with every visited chunk and never shrink. Maple cleans them when a chunk unloads.
 - **Shared pathfinding buffer.** Each mob owns its own pathfinding buffers that only grow, even when it does not move. Mobs share this memory.
+
+## Generation
+Maple also speeds up the creation of new chunks, without changing a single block.
+
+- **Terrain.** The game places the blocks of a chunk one by one. Maple fills each section in one go.
+- **Surface.** Grass, sand, snow: the game tests every surface rule on every block. Maple prepares them once per chunk and only tests the ones that can apply.
+- **Ores.** A vein placed higher than the ground of the chunk is dropped at once, instead of being tested column by column.
+- **Leaves.** The distance from a leaf to its trunk is kept in memory, and a leaf that does not change is no longer rewritten.
 
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
