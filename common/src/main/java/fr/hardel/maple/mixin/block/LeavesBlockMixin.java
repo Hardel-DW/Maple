@@ -15,10 +15,11 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class LeavesBlockMixin {
     @WrapOperation(
         method = "tick",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z")
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z")
     )
-    private boolean maple$skipUnchanged(ServerLevel level, BlockPos pos, BlockState newState, Operation<Boolean> original, @Local(argsOnly = true) BlockState state) {
-        return newState != state && original.call(level, pos, newState);
+    private boolean maple$skipUnchanged(ServerLevel level, BlockPos pos, BlockState newState, int flags, Operation<Boolean> original,
+        @Local(argsOnly = true) BlockState state) {
+        return newState != state && original.call(level, pos, newState, flags);
     }
 
     @WrapOperation(
