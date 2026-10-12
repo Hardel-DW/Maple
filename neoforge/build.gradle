@@ -3,12 +3,12 @@ plugins {
 }
 
 base {
-	archivesName = "Mapple-neoforge-${minecraftMajor}"
+	archivesName = "Maple-neoforge-${minecraftMajor}"
 }
 
 /** The one access widener of common, written in NeoForge's transformer syntax: same names, the Mojang ones, on both loaders. */
 def accessTransformer = tasks.register('accessTransformer') {
-	def widener = project(':common').file('src/main/resources/mapple.accesswidener')
+	def widener = project(':common').file('src/main/resources/maple.accesswidener')
 	def output = layout.buildDirectory.file('generated/accesstransformer/META-INF/accesstransformer.cfg')
 	inputs.file(widener)
 	outputs.file(output)
@@ -47,7 +47,7 @@ neoForge {
 	}
 
 	mods {
-		mapple {
+		maple {
 			sourceSet sourceSets.main
 		}
 	}
@@ -75,7 +75,7 @@ processResources {
 publishing {
 	publications {
 		create('mavenJava', MavenPublication) {
-			artifactId = "mapple-neoforge-${minecraftMajor}"
+			artifactId = "maple-neoforge-${minecraftMajor}"
 			from components.java
 		}
 	}

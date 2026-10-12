@@ -1,0 +1,17 @@
+{
+	"schemaVersion": 1,
+	"id": "maple-gametest",
+	"version": "1",
+	"name": "Maple Game Tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"fr.hardel.maple.gametest.BlenderTest",
+			"fr.hardel.maple.gametest.LeafDistanceTest"
+		]
+	},
+	"depends": {
+		"maple": "*",
+		"fabric-gametest-api-v1": "*"
+	}
+}

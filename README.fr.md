@@ -1,37 +1,41 @@
-# Mapple - Optimisations
-Mapple fonctionne sur n'importe quel serveur Fabric/NeoForge en server-side à partir de la 26.1. Il réduit la mémoire RAM d'un serveur Minecraft. Il est côté serveur, sans config, et ne change rien au jeu.
+# Maple - Optimisations
+Maple fonctionne sur n'importe quel serveur Fabric/NeoForge en server-side à partir de la 26.1. Il réduit la mémoire d'un serveur Minecraft et accélère la génération du monde. Il est côté serveur, sans config, et ne change rien au jeu.
 
-Mapple a été pensé pour tirer parti des optimisations à grande échelle qui scalent, notamment pour le bon fonctionnement de **[Leafs](https://modrinth.com/mod/leafs)**, le mod qui fait tourner le monde en multithread.
+Maple a été pensé pour tirer parti des optimisations à grande échelle qui scalent, notamment pour le bon fonctionnement de **[Leafs](https://modrinth.com/mod/leafs)**, le mod qui fait tourner le monde en multithread.
 
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
 # Ce qu'il optimise
-La grosse partie de la mémoire d'un serveur, c'est des blocs d'air qui surallouent de la RAM, et tout ce que le jeu garde autour des chunks au cas où. Mapple retire ce qui ne sert à rien.
+## La mémoire
+La grosse partie de la mémoire d'un serveur, c'est des blocs d'air qui surallouent de la RAM, et tout ce que le jeu garde autour des chunks au cas où. Maple retire ce qui ne sert à rien, sans coûter de CPU.
 
-- **L'air.** Trois sections de chunk sur quatre sont de l'air pur. Mapple les fusionne en une seule instance.
-- **Les copies de chunks.** Pour chaque chunk chargé, le jeu garde une copie vide qu'il ne lit jamais. Mapple la supprime.
-- **Les protections.** Chaque morceau de chunk embarque une protection lourde contre les accès simultanés. Mapple la remplace par une version légère qui fait le même travail.
-- **Les palettes de blocs.** Quand un chunk contient peu de sortes de blocs, Mapple les range plus serré en mémoire. Sur le disque, rien ne change.
-- **Les listes.** Le jeu tient des listes de POI, de structures et de types de chunks. Elles grossissent avec chaque chunk visité et ne rétrécissent jamais. Mapple les nettoie quand un chunk se décharge.
+- **L'air.** Trois sections de chunk sur quatre sont de l'air pur. Chaque chunk garde ses propres sections, mais toutes les vides partagent les mêmes données.
+- **Les copies de chunks.** Pour chaque chunk utilisé par la génération de ses voisins, le jeu construit une copie vide qu'il ne lit jamais. Maple la supprime.
+- **Les protections.** Chaque morceau de chunk embarque une protection lourde contre les accès simultanés, un contrôle de débogage. Maple la retire, comme Lithium.
+- **Les listes.** Le jeu tient des listes de POI et de types de chunks. Elles grossissent avec chaque chunk visité et ne rétrécissent jamais. Maple les nettoie quand un chunk se décharge.
 - **Buffer de pathfinding partagé.** Chaque mob possède ses propres buffers de pathfinding qui ne font que grossir, même quand il ne bouge pas. Les mobs se partagent cette mémoire.
-- **Stockage froid des chunks inactifs.** Un chunk qui attend dans la chaîne de génération est compressé en LZ4 jusqu'à ce que quelqu'un en ait besoin.
-- **Le disque.** Un chunk qui a seulement été chargé n'est pas réécrit sur le disque s'il n'est pas modifié. Mapple ne sauvegarde que ce qui a bougé.
+
+## La génération
+Maple accélère aussi la création des nouveaux chunks, sans changer un seul bloc.
+
+- **Le terrain.** Le jeu pose les blocs d'un chunk un par un. Maple remplit chaque section en une seule fois.
+- **La surface.** Herbe, sable, neige : le jeu teste toutes les règles de surface sur chaque bloc. Maple les prépare une fois par chunk et ne teste que celles qui peuvent s'appliquer.
+- **Les minerais.** Un filon placé plus haut que le sol du chunk est écarté tout de suite, au lieu d'être testé colonne par colonne.
+- **Les feuilles.** La distance d'une feuille à son tronc est gardée en mémoire, et une feuille qui ne change pas n'est plus réécrite.
 
 ![Delimeter](https://cdn.modrinth.com/data/cached_images/c57c204c55df0ce5357df6501f616f2c7b7c6df1.png)
 
 # Les gains
-Testés avec Leafs, chaque joueur isolé qui génère des nouveaux chunks coûte 33 Mo au lieu de 52 Mo.
+Mesurés sur un serveur sans Leafs, 5 joueurs qui survolent des terres nouvelles à 36 blocs par seconde, distance de vue 10. Le monde généré est identique à vanilla, bloc pour bloc.
 
-| Mesure | Vanilla | Mapple |
+| Mesure | Vanilla | Maple |
 |---|---|---|
-| Mémoire | 2 220 Mo | 1 560 Mo |
-| Objets en mémoire | 31 millions | 16 millions |
-| Chunks écrits à l'autosave | 23 210 | 3 377 |
-| Nœuds de pathfinding | 326 705 | 67 854 |
+| Mémoire vivante en fin de run | 0,66 à 0,69 Go | 0,52 à 0,53 Go |
+| CPU par chunk généré | 27,9 ms | 26,7 ms |
 
 # FAQ
 **Compatible avec Lithium et FerriteCore ?**
-Oui, et les deux sont recommandés.
+Oui, et les deux sont recommandés. Maple ne désactive aucune option de Lithium.
 
 **Compatible avec C2ME, Moonrise ou VMP ?**
 Non testé. Ils réécrivent les mêmes structures de chunks.
