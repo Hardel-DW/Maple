@@ -3,7 +3,7 @@ plugins {
 }
 
 base {
-	archivesName = "Mapple-common-${minecraftMajor}"
+	archivesName = "Maple-common-${minecraftMajor}"
 }
 
 dependencies {
@@ -12,5 +12,5 @@ dependencies {
 }
 
 loom {
-	accessWidenerPath = file('src/main/resources/mapple.accesswidener')
+	accessWidenerPath = file('src/main/resources/maple.accesswidener')
 }

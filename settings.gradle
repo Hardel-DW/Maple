@@ -13,5 +13,5 @@ pluginManagement {
 	}
 }
 
-rootProject.name = 'mapple'
+rootProject.name = 'maple'
 include 'common', 'fabric', 'neoforge'
